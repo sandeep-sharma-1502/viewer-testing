@@ -23,5 +23,3 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# Ignore viewer folder as its code should not be committed right now
-viewer/
