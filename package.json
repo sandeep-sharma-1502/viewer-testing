@@ -1,0 +1,29 @@
+{
+  "name": "icare-lms-new",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "dev-all": "concurrently \"npm run dev\" \"cd viewer && cross-env PUBLIC_URL=/viewer/ pnpm dev\"",
+    "build-all": "npm run build && cross-env PUBLIC_URL=/viewer/ pnpm --prefix viewer build && shx mkdir -p dist/viewer && shx cp -r viewer/platform/app/dist/. dist/viewer/"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0",
+    "concurrently": "^8.2.2",
+    "shx": "^0.3.4",
+    "cross-env": "^7.0.3"
+  }
+}
