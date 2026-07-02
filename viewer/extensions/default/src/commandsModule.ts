@@ -60,6 +60,32 @@ const commandsModule = ({
   const contextMenuController = new ContextMenuController(servicesManager, commandsManager);
 
   const actions = {
+    toggleFullscreen: () => {
+      const { toolbarService } = servicesManager.services;
+      const refresh = () => {
+        if (toolbarService) {
+          toolbarService.refreshToolbarState();
+        }
+      };
+
+      const onFullscreenChange = () => {
+        refresh();
+        document.removeEventListener('fullscreenchange', onFullscreenChange);
+      };
+      document.addEventListener('fullscreenchange', onFullscreenChange);
+
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+          document.removeEventListener('fullscreenchange', onFullscreenChange);
+        });
+      } else {
+        document.exitFullscreen().catch(err => {
+          console.error(`Error attempting to exit full-screen mode: ${err.message}`);
+          document.removeEventListener('fullscreenchange', onFullscreenChange);
+        });
+      }
+    },
     /**
      * Adds a display set as a layer to the specified viewport
      *
@@ -862,6 +888,7 @@ const commandsModule = ({
     addDisplaySetAsLayer: actions.addDisplaySetAsLayer,
     removeDisplaySetLayer: actions.removeDisplaySetLayer,
     createStoreFunction: actions.createStoreFunction,
+    toggleFullscreen: actions.toggleFullscreen,
   };
 
   return {

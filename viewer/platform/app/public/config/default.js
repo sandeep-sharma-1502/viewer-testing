@@ -2,12 +2,12 @@
 
 window.config = {
   name: 'config/default.js',
-  routerBasename: null,
+  routerBasename: '/',
   // whiteLabeling: {},
   extensions: [],
   modes: [],
   customizationService: {},
-  showStudyList: true,
+  showStudyList: false,
   // some windows systems have issues with more than 3 web workers
   maxNumberOfWebWorkers: 3,
   // below flag is for performance reasons, but it might not work for all servers
@@ -88,7 +88,7 @@ window.config = {
       ],
     },
   ],
-  defaultDataSourceName: 'ohif',
+  defaultDataSourceName: 'icare',
   /* Dynamic config allows user to pass "configUrl" query string this allows to load config without recompiling application. The regex will ensure valid configuration source */
   // dangerouslyUseDynamicConfig: {
   //   enabled: true,
@@ -97,9 +97,24 @@ window.config = {
   //   // regex: /(0-9A-Za-z.]+)(\/[0-9A-Za-z.]+)*/
   //   // Example 2, to restricts to either hosptial.com or othersite.com.
   //   // regex: /(https:\/\/hospital.com(\/[0-9A-Za-z.]+)*)|(https:\/\/othersite.com(\/[0-9A-Za-z.]+)*)/
-  //   regex: /.*/,
+  //   // regex: /.*/,
+  //   // dangerouslyAllowedOriginsForAuthenticatedEnvironments: [
+  //   //   'https://config.example.com',
+  //   //   'http://localhost:5000',
+  //   // ],
   // },
   dataSources: [
+    {
+      namespace: '@ohif/extension-default.dataSourcesModule.icare',
+      sourceName: 'icare',
+      configuration: {
+        friendlyName: 'icare json',
+        name: 'json',
+        dangerouslyAllowedOriginsForAuthenticatedEnvironments: [
+          'https://files.icareteleservices.com',
+        ],
+      },
+    },
     {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'ohif',
@@ -268,10 +283,9 @@ window.config = {
         name: 'json',
         // Security controls for runtime ?url=... datasource loading:
         // In authenticated environments, runtime ?url origins must be allowlisted:
-        // dangerouslyAllowedOriginsForAuthenticatedEnvironments: [
-        //   'https://config.example.com',
-        //   'http://localhost:5000',
-        // ],
+        dangerouslyAllowedOriginsForAuthenticatedEnvironments: [
+          'https://files.icareteleservices.com',
+        ],
       },
     },
     {

@@ -216,7 +216,24 @@ const toolbarButtons: Button[] = [
       tooltip: i18n.t('Buttons:Flip Horizontally'),
       commands: 'flipViewportHorizontal',
       evaluate: [
-        'evaluate.viewportProperties.toggle',
+        'evaluate.action',
+        {
+          name: 'evaluate.viewport.supported',
+          unsupportedViewportTypes: ['video', 'volume3d'],
+        },
+      ],
+    },
+  },
+  {
+    id: 'flipVertical',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-flip-vertical',
+      label: 'Flip Vertical',
+      tooltip: 'Flip Vertically',
+      commands: 'flipViewportVertical',
+      evaluate: [
+        'evaluate.action',
         {
           name: 'evaluate.viewport.supported',
           unsupportedViewportTypes: ['video', 'volume3d'],
@@ -629,6 +646,33 @@ const toolbarButtons: Button[] = [
           unsupportedViewportTypes: ['video', 'wholeSlide'],
         },
       ],
+    },
+  },
+  {
+    id: 'FullScreen',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-fullscreen',
+      label: 'Fullscreen',
+      tooltip: 'Toggle Fullscreen',
+      commands: 'toggleFullscreen',
+      evaluate: 'evaluate.fullscreen',
+    },
+  },
+  {
+    id: '3DOnly',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'layout-advanced-3d-only',
+      label: '3D only',
+      tooltip: 'Switch to 3D only layout',
+      commands: {
+        commandName: 'setHangingProtocol',
+        commandOptions: {
+          protocolId: 'only3D',
+        },
+      },
+      evaluate: 'evaluate.action',
     },
   },
   {

@@ -15,7 +15,7 @@ import NotFound from './NotFound';
 import buildModeRoutes from './buildModeRoutes';
 import PrivateRoute from './PrivateRoute';
 import PropTypes from 'prop-types';
-import { routerBasename } from '../utils/publicUrl';
+import { publicUrl, routerBasename } from '../utils/publicUrl';
 import { useAppConfig } from '@state';
 import { history } from '../utils/history';
 
@@ -72,23 +72,23 @@ NotFoundStudy.propTypes = {
 // TODO: Include "routes" debug route if dev build
 const bakedInRoutes = [
   {
-    path: `/notfoundserver`,
+    path: `${publicUrl}notfoundserver`.replace(/\/+/g, '/'),
     children: NotFoundServer,
   },
   {
-    path: `/notfoundstudy`,
+    path: `${publicUrl}notfoundstudy`.replace(/\/+/g, '/'),
     children: NotFoundStudy,
   },
   {
-    path: `/debug`,
+    path: `${publicUrl}debug`.replace(/\/+/g, '/'),
     children: Debug,
   },
   {
-    path: `/local`,
+    path: `${publicUrl}local`.replace(/\/+/g, '/'),
     children: Local.bind(null, { modePath: '' }), // navigate to the worklist
   },
   {
-    path: `/localbasic`,
+    path: `${publicUrl}localbasic`.replace(/\/+/g, '/'),
     children: Local.bind(null, { modePath: 'viewer/dicomlocal' }),
   },
 ];

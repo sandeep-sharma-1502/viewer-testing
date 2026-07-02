@@ -55,10 +55,10 @@ const Thumbnail = ({
   canReject = false,
   dragData = {},
   isDraggable = true,
-  onReject = () => {},
-  onClickUntrack = () => {},
-  ThumbnailMenuItems = () => {},
-  onImageLoadError = () => {},
+  onReject = () => { },
+  onClickUntrack = () => { },
+  ThumbnailMenuItems = () => { },
+  onImageLoadError = () => { },
 }: withAppTypes): React.ReactNode => {
   const [lastTap, setLastTap] = useState(0);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
@@ -105,13 +105,42 @@ const Thumbnail = ({
               <div className="bg-background h-[114px] w-[128px] rounded">{children}</div>
             )}
 
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[10] flex items-center justify-center pointer-events-none">
+              <div className="flex items-center gap-2 bg-[#2d3139]/95 border border-[#38bdf8]/40 rounded-md px-2.5 py-1.5 shadow-md h-6">
+                {/* Pointed Capsule SVG Progress Bar */}
+                <svg width="48" height="8" viewBox="0 0 48 8" className="overflow-visible">
+                  <defs>
+                    <clipPath id="capsule-clip">
+                      <path d="M4 1L1 4L4 7H44L47 4L44 1H4Z" />
+                    </clipPath>
+                  </defs>
+                  {/* Track Background */}
+                  <path d="M4 1L1 4L4 7H44L47 4L44 1H4Z" fill="#101827" stroke="#1f2937" strokeWidth="0.5" />
+                  {/* Progress Fill (Clipped by the capsule shape) */}
+                  <g clipPath="url(#capsule-clip)">
+                    <rect
+                      x="0"
+                      y="0"
+                      width={`${(loadingProgress || 0) * 48}`}
+                      height="8"
+                      fill="#38bdf8"
+                    />
+                  </g>
+                </svg>
+                {/* Percentage text */}
+                <span className="text-[10px] font-semibold text-[#38bdf8] leading-none">
+                  {Math.round((loadingProgress || 0) * 100)}%
+                </span>
+              </div>
+            </div>
+
             {/* bottom left */}
             <div className="absolute bottom-0 left-0 flex h-[14px] items-center gap-[4px] rounded-tr pt-[10px] pb-[10px] pr-[6px] pl-[5px]">
               <div
                 className={classnames(
                   'h-[10px] w-[10px] rounded-[2px]',
                   isActive || isHydratedForDerivedDisplaySet ? 'bg-highlight' : 'bg-primary/65',
-                  loadingProgress && loadingProgress < 1 && 'bg-primary/25'
+                  loadingProgress > 0 && loadingProgress < 1 && 'bg-primary/25'
                 )}
               ></div>
               <div

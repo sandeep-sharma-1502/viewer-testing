@@ -9,6 +9,7 @@ import MoreDropdownMenu from '../../Components/MoreDropdownMenu';
 import { CallbackCustomization } from 'platform/core/src/types';
 import { type TabsProps } from '@ohif/core/src/utils/createStudyBrowserTabs';
 import { thumbnailNoImageModalities } from '@ohif/core/src/utils/thumbnailNoImageModalities';
+import { cache as cornerstoneCache, eventTarget, Enums as csEnums } from '@cornerstonejs/core';
 
 const { sortStudyInstances, formatDate, createStudyBrowserTabs } = utils;
 
@@ -25,7 +26,7 @@ function PanelStudyBrowser({
   onDoubleClickThumbnailHandlerCallBack,
 }) {
   const { servicesManager, commandsManager, extensionManager } = useSystem();
-  const { displaySetService, customizationService } = servicesManager.services;
+  const { displaySetService, customizationService, studyPrefetcherService } = servicesManager.services;
   const navigate = useNavigate();
   const studyMode =
     (customizationService.getCustomization('studyBrowser.studyMode') as string) || 'all';
@@ -47,6 +48,62 @@ function PanelStudyBrowser({
   const [displaySetsLoadingState, setDisplaySetsLoadingState] = useState({});
   const [thumbnailImageSrcMap, setThumbnailImageSrcMap] = useState({});
   const [jumpToDisplaySet, setJumpToDisplaySet] = useState(null);
+
+  // Dynamic cornerstone cache progress tracker for display sets
+  useEffect(() => {
+    if (!displaySets || !displaySets.length) {
+      return;
+    }
+
+    const updateAllProgress = () => {
+      let hasChanges = false;
+      const nextState = {};
+
+      displaySets.forEach(ds => {
+        const displaySet = displaySetService.getDisplaySetByUID(ds.displaySetInstanceUID);
+        if (!displaySet) {
+          return;
+        }
+
+        const imageIds = dataSource.getImageIdsForDisplaySet(displaySet);
+        if (!imageIds || !imageIds.length) {
+          nextState[ds.displaySetInstanceUID] = 0;
+          if (displaySetsLoadingState[ds.displaySetInstanceUID] !== 0) {
+            hasChanges = true;
+          }
+          return;
+        }
+
+        let loadedCount = 0;
+        for (const id of imageIds) {
+          if (id && cornerstoneCache.isLoaded(id)) {
+            loadedCount++;
+          }
+        }
+
+        const progress = loadedCount / imageIds.length;
+        nextState[ds.displaySetInstanceUID] = progress;
+
+        if (displaySetsLoadingState[ds.displaySetInstanceUID] !== progress) {
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        setDisplaySetsLoadingState(nextState);
+      }
+    };
+
+    updateAllProgress();
+
+    eventTarget.addEventListener(csEnums.Events.IMAGE_CACHE_IMAGE_ADDED, updateAllProgress);
+    eventTarget.addEventListener(csEnums.Events.IMAGE_CACHE_IMAGE_REMOVED, updateAllProgress);
+
+    return () => {
+      eventTarget.removeEventListener(csEnums.Events.IMAGE_CACHE_IMAGE_ADDED, updateAllProgress);
+      eventTarget.removeEventListener(csEnums.Events.IMAGE_CACHE_IMAGE_REMOVED, updateAllProgress);
+    };
+  }, [displaySets, displaySetService, dataSource, displaySetsLoadingState]);
 
   const [viewPresets, setViewPresets] = useState(
     customizationService.getCustomization('studyBrowser.viewPresets')

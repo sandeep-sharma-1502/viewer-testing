@@ -17,7 +17,7 @@ function normalizeAllowedOrigins(allowedOrigins = []) {
         if (!['http:', 'https:'].includes(parsedOrigin.protocol)) {
           console.error(
             `[secureConfigFetch] Ignoring misconfigured allowed origin "${origin}". ` +
-              'Entries must use http:// or https://.'
+            'Entries must use http:// or https://.'
           );
           return null;
         }
@@ -30,7 +30,7 @@ function normalizeAllowedOrigins(allowedOrigins = []) {
         ) {
           console.error(
             `[secureConfigFetch] Ignoring misconfigured allowed origin "${origin}". ` +
-              'Entries must be bare origins only (scheme + host + optional port), with no username/password, path, query, or hash.'
+            'Entries must be bare origins only (scheme + host + optional port), with no username/password, path, query, or hash.'
           );
           return null;
         }
@@ -105,6 +105,8 @@ async function fetchConfigJson(normalizedPolicy) {
     redirect: 'error',
     referrerPolicy: 'no-referrer',
   });
+
+  console.log("sandeep sharma", response);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch dynamic datasource configuration (${response.status})`);

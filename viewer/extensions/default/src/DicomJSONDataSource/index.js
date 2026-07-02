@@ -87,6 +87,18 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
       let StudyInstanceUID;
       let SeriesInstanceUID;
       data.studies.forEach(study => {
+        if (!study.StudyInstanceUID) {
+          const firstInst = study.series?.[0]?.instances?.[0];
+          const meta = firstInst?.metadata || {};
+          study.StudyInstanceUID = meta.StudyInstanceUID;
+          study.PatientName = meta.PatientName;
+          study.PatientID = meta.PatientID;
+          study.StudyDescription = meta.StudyDescription;
+          study.StudyDate = meta.StudyDate;
+          study.StudyTime = meta.StudyTime;
+          study.AccessionNumber = meta.AccessionNumber;
+        }
+
         StudyInstanceUID = study.StudyInstanceUID;
 
         study.series.forEach(series => {
@@ -120,7 +132,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
     },
     query: {
       studies: {
-        mapParams: () => {},
+        mapParams: () => { },
         search: async param => {
           const [key, value] = Object.entries(param)[0];
           const mappedParam = mappings[key];
@@ -258,7 +270,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
       },
     },
     reject: {},
-    deleteStudyMetadataPromise: () => {},
+    deleteStudyMetadataPromise: () => { },
     getImageIdsForDisplaySet(displaySet) {
       const images = displaySet.images;
       const imageIds = [];

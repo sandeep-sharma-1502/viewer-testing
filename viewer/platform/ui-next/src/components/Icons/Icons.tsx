@@ -155,6 +155,7 @@ import {
   ToolSegmentLabel,
   ToolSculptor,
   ToolLabelmapEditWithContour,
+  ToolFullscreen,
 } from './Sources/Tools';
 import ActionNewDialog from './Sources/ActionNewDialog';
 import NotificationInfo from './Sources/NotificationInfo';
@@ -258,6 +259,8 @@ const ImageWrapper = ({ src, ...props }: { src: string } & ImageIconProps) => {
 };
 
 export const Icons = {
+  'icon-tool-fullscreen': (props: IconProps) => ToolFullscreen(props),
+  'tool-fullscreen': (props: IconProps) => ToolFullscreen(props),
   'CT-AAA': (props: ImageIconProps) => (
     <ImageWrapper
       src={CTAAA}
@@ -728,6 +731,18 @@ export const Icons = {
   'tool-crosshair-checked': (props: IconProps) => ToolCrosshairChecked(props),
   'dicom-tag-browser': (props: IconProps) => ToolDicomTagBrowser(props),
   'tool-flip-horizontal': (props: IconProps) => ToolFlipHorizontal(props),
+  'tool-flip-vertical': (props: IconProps) => (
+    <ToolFlipHorizontal
+      {...props}
+      className={`${props.className || ''} rotate-90`.trim()}
+    />
+  ),
+  'icon-tool-flip-vertical': (props: IconProps) => (
+    <ToolFlipHorizontal
+      {...props}
+      className={`${props.className || ''} rotate-90`.trim()}
+    />
+  ),
   'tool-freehand-polygon': (props: IconProps) => ToolFreehandPolygon(props),
   'tool-freehand-roi': (props: IconProps) => ToolFreehandRoi(props),
   'icon-tool-freehand-roi': (props: IconProps) => ToolFreehandRoi(props),

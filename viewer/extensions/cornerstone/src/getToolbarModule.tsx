@@ -472,6 +472,15 @@ export default function getToolbarModule({ servicesManager, extensionManager }: 
       },
     },
     {
+      name: 'evaluate.fullscreen',
+      evaluate: () => {
+        return {
+          disabled: false,
+          isActive: !!document.fullscreenElement,
+        };
+      },
+    },
+    {
       name: 'evaluate.cornerstoneTool.toggle.ifStrictlyDisabled',
       evaluate: ({ viewportId, button, disabledText }) =>
         _evaluateToggle({

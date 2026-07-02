@@ -216,7 +216,7 @@ const toolbarButtons: Button[] = [
       tooltip: i18n.t('Buttons:Flip Horizontally'),
       commands: 'flipViewportHorizontal',
       evaluate: [
-        'evaluate.viewportProperties.toggle',
+        'evaluate.action',
         {
           name: 'evaluate.viewport.supported',
           unsupportedViewportTypes: ['video', 'volume3d'],

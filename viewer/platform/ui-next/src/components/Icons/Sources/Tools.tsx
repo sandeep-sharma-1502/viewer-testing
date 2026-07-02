@@ -76,7 +76,7 @@ export const ToolLayout = (props: IconProps) => (
         <g
           id="gear"
           transform="translate(21.0876, 17.2796) rotate(-20) translate(-21.0876, -17.2796)translate(15.9634, 11.5127)"
-          stroke="hsl(var(--primary))"
+          stroke="#348CFD"
           strokeLinejoin="round"
           strokeWidth="1.25"
         >
@@ -1825,7 +1825,7 @@ export const ToolLayoutDefault = (props: IconProps) => (
         <g
           id="gear"
           transform="translate(21.0876, 17.2796) rotate(-20) translate(-21.0876, -17.2796)translate(15.9634, 11.5127)"
-          stroke="hsl(var(--primary))"
+          stroke="#348CFD"
           strokeLinejoin="round"
           strokeWidth="1.25"
         >
@@ -3654,6 +3654,46 @@ export const ToolLabelmapEditWithContour = (props: IconProps) => (
     <path
       d="M4.50586 8.22266C4.14844 8.22266 3.92578 7.9707 3.92578 7.60742V5.68555H2.10352C1.74609 5.68555 1.5 5.46875 1.5 5.11719C1.5 4.76562 1.74609 4.54297 2.10352 4.54297H3.92578V2.61523C3.92578 2.25195 4.14844 2 4.50586 2C4.85742 2 5.08008 2.25195 5.08008 2.61523V4.54297H6.89648C7.25391 4.54297 7.50586 4.76562 7.50586 5.11719C7.50586 5.46875 7.25391 5.68555 6.89648 5.68555H5.08008V7.60742C5.08008 7.9707 4.85742 8.22266 4.50586 8.22266Z"
       fill="currentColor"
+    />
+  </svg>
+);
+
+export const ToolFullscreen = (props: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="28"
+    height="28"
+    viewBox="0 0 28 28"
+    fill="none"
+    {...props}
+  >
+    <path
+      d="M10 4H4V10"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M18 4H24V10"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M24 18V24H18"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 24H4V18"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );

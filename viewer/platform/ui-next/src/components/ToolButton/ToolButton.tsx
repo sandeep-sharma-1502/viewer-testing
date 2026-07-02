@@ -89,6 +89,7 @@ function ToolButton(props: ToolButtonProps) {
           data-tool={id}
           data-active={isActive}
           data-toggled={isToggled}
+          className="flex flex-col items-center justify-center gap-1"
         >
           <Button
             className={buttonClasses}
@@ -110,6 +111,11 @@ function ToolButton(props: ToolButtonProps) {
               />
             )}
           </Button>
+          {label && !id.startsWith('orientationMenu') && !id.startsWith('dataOverlayMenu') && (
+            <span className="text-[10px] text-foreground/80 font-medium select-none pointer-events-none text-center leading-none max-w-[80px] truncate">
+              {label}
+            </span>
+          )}
         </span>
       </TooltipTrigger>
       <TooltipContent

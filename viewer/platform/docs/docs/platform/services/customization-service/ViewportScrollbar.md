@@ -1,8 +1,7 @@
 ---
-sidebar_label: Viewport Scrollbar
 title: Viewport Scrollbar Customization
 summary: Documentation for configuring OHIF viewport scrollbar behavior, including progress vs legacy mode, loaded/viewed tracking visuals, loading pattern behavior, timing controls, and viewportScrollbar.indicator (size + optional custom indicator).
-sidebar_position: 9
+sidebar_position: 7
 ---
 
 # Viewport Scrollbar

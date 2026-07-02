@@ -30,7 +30,7 @@ export function defaultSettingsMenuItems({
   const items: SettingsMenuItem[] = [
     {
       id: 'about',
-      label: t('Header:About'),
+      label: 'About OHIF Viewer',
       onClick: () => {
         const AboutModal = customizationService.getCustomization('ohif.aboutModal');
         show({
@@ -42,7 +42,7 @@ export function defaultSettingsMenuItems({
     },
     {
       id: 'userPreferences',
-      label: t('Header:Preferences'),
+      label: 'User Preferences',
       onClick: () => {
         const UserPreferencesModal = customizationService.getCustomization(
           'ohif.userPreferencesModal'
@@ -56,21 +56,6 @@ export function defaultSettingsMenuItems({
       },
     },
   ];
-
-  const AppearanceModal = customizationService.getCustomization('ohif.appearanceModal');
-  if (AppearanceModal) {
-    items.splice(1, 0, {
-      id: 'appearance',
-      label: AppearanceModal.menuTitle ?? t('Header:Appearance'),
-      onClick: () => {
-        show({
-          content: AppearanceModal,
-          title: AppearanceModal.title ?? t('AppearanceModal:Appearance'),
-          containerClassName: AppearanceModal.containerClassName ?? 'max-w-md',
-        });
-      },
-    });
-  }
 
   if (appConfig.oidc) {
     items.push({
@@ -122,7 +107,7 @@ export function StudyListSettingsPopover() {
         >
           <Icons.SettingsStudyList
             aria-hidden="true"
-            className="text-primary h-4 w-4"
+            className="h-4 w-4"
           />
         </Button>
       </StudyList.SettingsPopover.Trigger>

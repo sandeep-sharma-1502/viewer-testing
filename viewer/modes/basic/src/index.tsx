@@ -215,12 +215,19 @@ export function onModeExit({ servicesManager }: withAppTypes) {
 
 export const toolbarSections = {
   [TOOLBAR_SECTIONS.primary]: [
+    'Length',
+    'Angle',
     'MeasurementTools',
     'Zoom',
     'Pan',
     'TrackballRotate',
     'WindowLevel',
+    'rotate-right',
+    'flipHorizontal',
+    'flipVertical',
     'Capture',
+    'FullScreen',
+    '3DOnly',
     'Layout',
     'Crosshairs',
     'MoreTools',
@@ -247,11 +254,10 @@ export const toolbarSections = {
   [TOOLBAR_SECTIONS.viewportActionMenu.bottomLeft]: ['windowLevelMenu'],
 
   MeasurementTools: [
-    'Length',
-    'Bidirectional',
+    'RectangleROI',
     'ArrowAnnotate',
     'EllipticalROI',
-    'RectangleROI',
+    'Bidirectional',
     'CircleROI',
     'PlanarFreehandROI',
     'SplineROI',
@@ -260,8 +266,6 @@ export const toolbarSections = {
 
   MoreTools: [
     'Reset',
-    'rotate-right',
-    'flipHorizontal',
     'ImageSliceSync',
     'ReferenceLines',
     'ImageOverlayViewer',
@@ -269,7 +273,6 @@ export const toolbarSections = {
     'invert',
     'Probe',
     'Cine',
-    'Angle',
     'CobbAngle',
     'Magnify',
     'CalibrationLine',

@@ -86,13 +86,6 @@ function ToolbarLayoutSelectorWithServices({
           },
         },
         {
-          title: '3D only',
-          icon: 'layout-single',
-          commandOptions: {
-            protocolId: '3d-only',
-          },
-        },
-        {
           title: '3D primary',
           icon: 'layout-side-by-side',
           commandOptions: {

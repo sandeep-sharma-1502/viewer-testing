@@ -7,6 +7,7 @@ import { createDicomJSONApi } from './DicomJSONDataSource/index';
 import { createDicomLocalApi } from './DicomLocalDataSource/index';
 import { createDicomWebProxyApi } from './DicomWebProxyDataSource/index';
 import { createMergeDataSourceApi } from './MergeDataSource/index';
+import { createIcareApi } from './IcareDataSource/index';
 
 /**
  *
@@ -17,6 +18,11 @@ function getDataSourcesModule() {
       name: 'dicomweb',
       type: 'webApi',
       createDataSource: createDicomWebApi,
+    },
+    {
+      name: 'icare',
+      type: 'webApi',
+      createDataSource: createIcareApi,
     },
     {
       name: 'dicomwebproxy',
