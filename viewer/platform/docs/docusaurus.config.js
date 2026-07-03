@@ -1,6 +1,14 @@
 // read this text file
 const fs = require('fs');
-const rawVersion = fs.readFileSync('../../version.txt', 'utf8').trim();
+let rawVersion = '0.0.0';
+try {
+  rawVersion = fs.readFileSync('../../version.txt', 'utf8').trim();
+} catch (e) {
+  try {
+    const versionJson = JSON.parse(fs.readFileSync('../../version.json', 'utf8'));
+    rawVersion = versionJson.version || '0.0.0';
+  } catch (err) {}
+}
 const [major, minor] = rawVersion.split('.');
 const versionLabel = rawVersion.includes('beta')
   ? `${major}.${minor} Beta`

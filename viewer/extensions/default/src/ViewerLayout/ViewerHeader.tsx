@@ -104,7 +104,7 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
       Secondary={<Toolbar buttonSection="secondary" />}
     >
       <div
-        className="relative flex items-center justify-center w-full group mx-auto px-10 h-full gap-2"
+        className="relative flex items-center justify-center w-full group mx-auto px-10 h-full"
         style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
       >
         <style>{`
@@ -138,7 +138,7 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
         >
           <Toolbar buttonSection="primary" />
         </div>
-        <div className="text-primary flex cursor-pointer items-center border-l border-border pl-1 h-7 gap-[2px] flex-shrink-0">
+        <div className="text-primary flex cursor-pointer items-center h-7 gap-[2px] flex-shrink-0">
           <Button
             variant="ghost"
             className="hover:bg-muted h-7 px-1.5"

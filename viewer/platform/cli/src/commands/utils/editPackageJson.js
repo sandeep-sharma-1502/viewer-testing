@@ -4,7 +4,15 @@ import path from 'path';
 async function editPackageJson(options) {
   const { name, version, description, author, license, targetDir } = options;
 
-  const ohifVersion = fs.readFileSync('./version.txt', 'utf8').trim();
+  let ohifVersion = '0.0.0';
+  try {
+    ohifVersion = fs.readFileSync('./version.txt', 'utf8').trim();
+  } catch (e) {
+    try {
+      const versionJson = JSON.parse(fs.readFileSync('./version.json', 'utf8'));
+      ohifVersion = versionJson.version || '0.0.0';
+    } catch (err) {}
+  }
 
   // read package.json from targetDir
   const dependenciesPath = path.join(targetDir, 'dependencies.json');

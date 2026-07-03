@@ -222,6 +222,7 @@ export const toolbarSections = {
     'Capture',
     'FullScreen',
     '3DOnly',
+    'MPR',
     'Layout',
     'Crosshairs',
     'MoreTools',

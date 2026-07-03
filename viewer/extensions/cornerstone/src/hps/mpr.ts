@@ -53,7 +53,7 @@ export const mpr: Types.HangingProtocol.Protocol = {
   name: i18n.t('Hps:MPR'),
   locked: true,
   icon: 'layout-advanced-mpr',
-  isPreset: true,
+  isPreset: false,
   createdDate: '2021-02-23',
   modifiedDate: '2023-08-15',
   availableTo: {},

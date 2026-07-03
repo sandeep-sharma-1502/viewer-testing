@@ -33,10 +33,27 @@ const QUICK_BUILD = process.env.QUICK_BUILD;
 const BUILD_NUM = process.env.CIRCLE_BUILD_NUM || '0';
 const IS_COVERAGE = process.env.COVERAGE === 'true';
 
-// read from ../version.txt
-const VERSION_NUMBER = fs.readFileSync(path.join(__dirname, '../version.txt'), 'utf8') || '';
+// read from ../version.txt or ../version.json fallback
+let VERSION_NUMBER = '';
+try {
+  VERSION_NUMBER = fs.readFileSync(path.join(__dirname, '../version.txt'), 'utf8').trim();
+} catch (e) {
+  try {
+    const versionJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../version.json'), 'utf8'));
+    VERSION_NUMBER = versionJson.version || '';
+  } catch (err) {}
+}
 
-const COMMIT_HASH = fs.readFileSync(path.join(__dirname, '../commit.txt'), 'utf8') || '';
+let COMMIT_HASH = '';
+try {
+  COMMIT_HASH = fs.readFileSync(path.join(__dirname, '../commit.txt'), 'utf8').trim();
+} catch (e) {
+  try {
+    const versionJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../version.json'), 'utf8'));
+    COMMIT_HASH = versionJson.commit || '';
+  } catch (err) {}
+}
+
 
 //
 dotenv.config();

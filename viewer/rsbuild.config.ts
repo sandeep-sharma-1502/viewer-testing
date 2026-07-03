@@ -19,8 +19,25 @@ const PUBLIC_URL = process.env.PUBLIC_URL || '/';
 // Add these constants
 const NODE_ENV = process.env.NODE_ENV;
 const BUILD_NUM = process.env.CIRCLE_BUILD_NUM || '0';
-const VERSION_NUMBER = fs.readFileSync(path.join(__dirname, './version.txt'), 'utf8') || '';
-const COMMIT_HASH = fs.readFileSync(path.join(__dirname, './commit.txt'), 'utf8') || '';
+let VERSION_NUMBER = '';
+try {
+  VERSION_NUMBER = fs.readFileSync(path.join(__dirname, './version.txt'), 'utf8').trim();
+} catch (e) {
+  try {
+    const versionJson = JSON.parse(fs.readFileSync(path.join(__dirname, './version.json'), 'utf8'));
+    VERSION_NUMBER = versionJson.version || '';
+  } catch (err) {}
+}
+
+let COMMIT_HASH = '';
+try {
+  COMMIT_HASH = fs.readFileSync(path.join(__dirname, './commit.txt'), 'utf8').trim();
+} catch (e) {
+  try {
+    const versionJson = JSON.parse(fs.readFileSync(path.join(__dirname, './version.json'), 'utf8'));
+    COMMIT_HASH = versionJson.commit || '';
+  } catch (err) {}
+}
 const PROXY_TARGET = process.env.PROXY_TARGET;
 const PROXY_DOMAIN = process.env.PROXY_DOMAIN;
 const PROXY_PATH_REWRITE_FROM = process.env.PROXY_PATH_REWRITE_FROM;

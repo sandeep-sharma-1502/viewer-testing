@@ -112,6 +112,7 @@ window.config = {
         name: 'json',
         dangerouslyAllowedOriginsForAuthenticatedEnvironments: [
           'https://files.icareteleservices.com',
+          'https://files.anikrafoundation.com',
         ],
       },
     },

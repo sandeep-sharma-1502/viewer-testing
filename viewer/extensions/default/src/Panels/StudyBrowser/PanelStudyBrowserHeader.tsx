@@ -40,7 +40,7 @@ function PanelStudyBrowserHeader({
                   updateViewPresetValue(selectedViewPreset);
                 }}
               >
-                {viewPresets.map((viewPreset: viewPreset, index) => (
+                {viewPresets.filter(preset => preset.id !== 'list').map((viewPreset: viewPreset, index) => (
                   <ToggleGroupItem
                     key={index}
                     aria-label={viewPreset.id}

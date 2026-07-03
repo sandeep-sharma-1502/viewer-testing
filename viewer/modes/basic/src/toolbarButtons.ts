@@ -687,6 +687,22 @@ const toolbarButtons: Button[] = [
     },
   },
   {
+    id: 'MPR',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'layout-advanced-mpr',
+      label: 'MPR',
+      tooltip: 'Switch to MPR layout',
+      commands: {
+        commandName: 'setHangingProtocol',
+        commandOptions: {
+          protocolId: 'mpr',
+        },
+      },
+      evaluate: 'evaluate.action',
+    },
+  },
+  {
     id: 'Layout',
     uiType: 'ohif.layoutSelector',
     props: {
