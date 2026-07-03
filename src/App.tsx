@@ -67,7 +67,7 @@ function Home() {
 
       {/* ── Tab bar ── */}
       <div style={{
-        height: '40px',
+        height: '34px',
         backgroundColor: '#0f172a',
         borderBottom: '1px solid #1e293b',
         display: 'flex',
@@ -186,7 +186,7 @@ function Home() {
                 <button
                   onClick={() => openViewerTab(
                     'Study Scan 36',
-                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/36.json')
+                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/32.json')
                   )}
                   style={{
                     padding: '6px 16px',
