@@ -93,6 +93,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
           study.StudyInstanceUID = meta.StudyInstanceUID;
           study.PatientName = meta.PatientName;
           study.PatientID = meta.PatientID;
+          study.PatientSex = meta.PatientSex;
           study.StudyDescription = meta.StudyDescription;
           study.StudyDate = meta.StudyDate;
           study.StudyTime = meta.StudyTime;
@@ -149,6 +150,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
               modalities: aStudy.Modalities,
               mrn: aStudy.PatientID,
               patientName: aStudy.PatientName,
+              patientSex: aStudy.PatientSex || '',
               studyInstanceUid: aStudy.StudyInstanceUID,
               NumInstances: aStudy.NumInstances,
               time: aStudy.StudyTime,

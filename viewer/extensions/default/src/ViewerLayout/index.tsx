@@ -65,6 +65,22 @@ function ViewerLayout({
     rightPanelMinimumExpandedWidth
   );
 
+  useEffect(() => {
+    const handleOpenRightPanel = () => {
+      setRightPanelClosed(prev => !prev);
+    };
+    window.addEventListener('ohif-open-right-panel', handleOpenRightPanel);
+    return () => {
+      window.removeEventListener('ohif-open-right-panel', handleOpenRightPanel);
+    };
+  }, [setRightPanelClosed]);
+
+  useEffect(() => {
+    const { toolbarService, viewportGridService } = servicesManager.services;
+    const { activeViewportId: viewportId } = viewportGridService.getState();
+    toolbarService.refreshToolbarState({ viewportId });
+  }, [rightPanelClosedState, servicesManager]);
+
   const handleMouseEnter = () => {
     (document.activeElement as HTMLElement)?.blur();
   };
@@ -202,7 +218,7 @@ function ViewerLayout({
                 <ResizableHandle
                   onDragging={onHandleDragging}
                   disabled={!rightPanelResizable}
-                  className={resizableHandleClassName}
+                  className={`${resizableHandleClassName} ${rightPanelClosedState ? 'hidden' : ''}`}
                 />
                 <ResizablePanel {...resizableRightPanelProps}>
                   <SidePanelWithServices

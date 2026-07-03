@@ -93,6 +93,7 @@ function modeFactory() {
       toolbarService.register(toolbarButtons);
       console.debug('toolbarButtons', toolbarButtons);
       toolbarService.updateSection(toolbarService.sections.primary, [
+        'Report',
         'MeasurementTools',
         'Zoom',
         'WindowLevelGroup',

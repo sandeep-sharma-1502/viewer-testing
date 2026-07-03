@@ -107,6 +107,7 @@ function modeFactory({ modeConfiguration }) {
 
       toolbarService.register(toolbarButtons);
       toolbarService.updateSection(toolbarService.sections.primary, [
+        'Report',
         'MeasurementTools',
         'Zoom',
         'Pan',

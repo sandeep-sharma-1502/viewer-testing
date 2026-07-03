@@ -12,6 +12,17 @@ const setToolActiveToolbar = {
 
 const toolbarButtons = [
   {
+    id: 'Report',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-report',
+      label: 'Report',
+      tooltip: 'Create/Save Report',
+      commands: 'promptSaveReport',
+      evaluate: 'evaluate.action',
+    },
+  },
+  {
     id: 'MeasurementTools',
     uiType: 'ohif.toolButtonList',
     props: {

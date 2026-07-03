@@ -38,6 +38,20 @@ const ScrollArea = React.forwardRef<
   const [showBottomArrow, setShowBottomArrow] = React.useState(false);
   const [showTopArrow, setShowTopArrow] = React.useState(false);
   const viewportRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isInRightPanel, setIsInRightPanel] = React.useState(false);
+
+  const handleRef = React.useCallback(
+    (node) => {
+      containerRef.current = node;
+      if (typeof ref === 'function') {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
+    },
+    [ref]
+  );
 
   const checkScroll = React.useCallback(() => {
     if (viewportRef.current) {
@@ -48,6 +62,10 @@ const ScrollArea = React.forwardRef<
   }, []);
 
   React.useEffect(() => {
+    if (containerRef.current) {
+      const isRight = !!containerRef.current.closest('#viewerLayoutResizableRightPanel');
+      setIsInRightPanel(isRight);
+    }
     checkScroll();
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
@@ -55,29 +73,55 @@ const ScrollArea = React.forwardRef<
 
   return (
     <ScrollAreaPrimitive.Root
-      ref={ref}
+      ref={handleRef}
       className={cn('relative h-full overflow-hidden', className, '[&>div>div]:!block')}
       type={props.type}
       {...props}
     >
-      <ScrollAreaPrimitive.Viewport
-        ref={viewportRef}
-        className="h-full w-full rounded-[inherit]"
-        onScroll={checkScroll}
-      >
-        {children}
-      </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
-      <ScrollAreaPrimitive.Corner />
-      {showArrows && showTopArrow && (
-        <div className="from-background via-background/80 pointer-events-none absolute -top-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-b to-transparent">
-          <Icons.ChevronOpen className="text-foreground/50 h-8 w-8 rotate-180" />
-        </div>
-      )}
-      {showArrows && showBottomArrow && (
-        <div className="from-background via-background/80 pointer-events-none absolute -bottom-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-t to-transparent">
-          <Icons.ChevronOpen className="text-foreground/50 h-8 w-8" />
-        </div>
+      {isInRightPanel ? (
+        // isme kabhi bhi kuch show nhi karna hai jo jo show ho ta hai use remove mat karo comment kar do
+        // <ScrollAreaPrimitive.Viewport
+        //   ref={viewportRef}
+        //   className="h-full w-full rounded-[inherit]"
+        //   onScroll={checkScroll}
+        // >
+        //   {children}
+        // </ScrollAreaPrimitive.Viewport>
+        // <ScrollBar />
+        // <ScrollAreaPrimitive.Corner />
+        // {showArrows && showTopArrow && (
+        //   <div className="from-background via-background/80 pointer-events-none absolute -top-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-b to-transparent">
+        //     <Icons.ChevronOpen className="text-foreground/50 h-8 w-8 rotate-180" />
+        //   </div>
+        // )}
+        // {showArrows && showBottomArrow && (
+        //   <div className="from-background via-background/80 pointer-events-none absolute -bottom-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-t to-transparent">
+        //     <Icons.ChevronOpen className="text-foreground/50 h-8 w-8" />
+        //   </div>
+        // )}
+        null
+      ) : (
+        <>
+          <ScrollAreaPrimitive.Viewport
+            ref={viewportRef}
+            className="h-full w-full rounded-[inherit]"
+            onScroll={checkScroll}
+          >
+            {children}
+          </ScrollAreaPrimitive.Viewport>
+          <ScrollBar />
+          <ScrollAreaPrimitive.Corner />
+          {showArrows && showTopArrow && (
+            <div className="from-background via-background/80 pointer-events-none absolute -top-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-b to-transparent">
+              <Icons.ChevronOpen className="text-foreground/50 h-8 w-8 rotate-180" />
+            </div>
+          )}
+          {showArrows && showBottomArrow && (
+            <div className="from-background via-background/80 pointer-events-none absolute -bottom-1 left-0 right-0 flex h-8 items-center justify-center bg-gradient-to-t to-transparent">
+              <Icons.ChevronOpen className="text-foreground/50 h-8 w-8" />
+            </div>
+          )}
+        </>
       )}
     </ScrollAreaPrimitive.Root>
   );

@@ -242,11 +242,14 @@ const useResizablePanels = (
   }, [setRightPanelClosed]);
 
   const onRightPanelOpen = useCallback(() => {
-    resizableRightPanelAPIRef?.current?.expand(
-      getPercentageSize(panelGroupDefinition.right.initialExpandedOffsetWidth)
-    );
+    let leftSize = 0;
+    if (resizableLeftPanelAPIRef.current && !resizableLeftPanelAPIRef.current.isCollapsed()) {
+      leftSize = resizableLeftPanelAPIRef.current.getSize();
+    }
+    const equalSize = (100 - leftSize) / 2;
+    resizableRightPanelAPIRef?.current?.expand(equalSize);
     setRightPanelClosed(false);
-  }, [setRightPanelClosed]);
+  }, [setRightPanelClosed, resizableLeftPanelAPIRef]);
 
   const onRightPanelResize = useCallback(size => {
     if (!resizablePanelGroupElemRef?.current || resizableRightPanelAPIRef?.current?.isCollapsed()) {
@@ -321,6 +324,7 @@ const useResizablePanels = (
     {
       defaultSize: rightResizablePanelMinimumSize,
       minSize: rightResizablePanelMinimumSize,
+      maxSize: 80,
       onResize: onRightPanelResize,
       collapsible: true,
       collapsedSize: rightResizePanelCollapsedSize,

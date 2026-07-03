@@ -106,7 +106,7 @@ const Thumbnail = ({
             )}
 
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[10] flex items-center justify-center pointer-events-none">
-              <div className="flex items-center gap-2 bg-[#2d3139]/95 border border-[#38bdf8]/40 rounded-md px-2.5 py-1.5 shadow-md h-6">
+              <div className="flex items-center gap-2 bg-[#2d3139]/95 border border-[#38bdf8]/40 rounded-md px-2.5 shadow-md h-6">
                 {/* Pointed Capsule SVG Progress Bar */}
                 <svg width="48" height="8" viewBox="0 0 48 8" className="overflow-visible">
                   <defs>

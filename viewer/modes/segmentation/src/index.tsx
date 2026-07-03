@@ -41,6 +41,7 @@ function modeFactory({ modeConfiguration }) {
       toolbarService.register(toolbarButtons);
 
       toolbarService.updateSection(toolbarService.sections.primary, [
+        'Report',
         'WindowLevel',
         'Pan',
         'Zoom',

@@ -1,21 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
-import { Button, Header, Icons, useModal, AboutModal, UserPreferencesModal } from '@ohif/ui-next';
+import { Button, Header, Icons } from '@ohif/ui-next';
 import { useSystem } from '@ohif/core';
 import { Toolbar } from '../Toolbar/Toolbar';
-import HeaderPatientInfo from './HeaderPatientInfo';
-import { PatientInfoVisibility } from './HeaderPatientInfo/HeaderPatientInfo';
-import { preserveQueryParameters } from '@ohif/app';
 import { Types } from '@ohif/core';
 
 function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }>) {
-  const { servicesManager, extensionManager, commandsManager } = useSystem();
-  const { customizationService } = servicesManager.services;
-
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { commandsManager } = useSystem();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hasScroll, setHasScroll] = useState(false);
@@ -28,13 +19,11 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
     if (!el) return;
 
     // Dynamically calculate actual available width symmetrically to prevent overlap on either side
-    const logoEl = document.querySelector('[data-cy="return-to-work-list"]');
     const rightEl = document.querySelector('.absolute.right-0') || document.querySelector('[data-cy="patient-header"]')?.parentElement;
-    if (logoEl && rightEl) {
-      const logoRect = logoEl.getBoundingClientRect();
+    if (rightEl) {
       const rightRect = rightEl.getBoundingClientRect();
       const screenCenter = window.innerWidth / 2;
-      const leftDistance = screenCenter - logoRect.right;
+      const leftDistance = screenCenter;
       const rightDistance = rightRect.left - screenCenter;
       const maxHalfWidth = Math.min(leftDistance, rightDistance) - 12; // 24px safety margin per side
       const newMax = Math.max(200, maxHalfWidth * 2);
@@ -76,6 +65,16 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
       });
     }
 
+    // Setup MutationObserver to watch for changes in the toolbar container itself
+    const toolbarObserver = new MutationObserver(() => {
+      checkScroll();
+    });
+    toolbarObserver.observe(el, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
     const timeout = setTimeout(checkScroll, 100);
 
     return () => {
@@ -84,6 +83,7 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
       if (observer) {
         observer.disconnect();
       }
+      toolbarObserver.disconnect();
       clearTimeout(timeout);
     };
   }, [scrollRef]);
@@ -95,105 +95,16 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
     el.scrollBy({ left: scrollAmount, behavior: 'smooth' });
   };
 
-  const onClickReturnButton = () => {
-    const { pathname } = location;
-    const dataSourceIdx = pathname.indexOf('/', 1);
 
-    const dataSourceName = pathname.substring(dataSourceIdx + 1);
-    const existingDataSource = extensionManager.getDataSources(dataSourceName);
 
-    const searchQuery = new URLSearchParams();
-    if (dataSourceIdx !== -1 && existingDataSource) {
-      searchQuery.append('datasources', pathname.substring(dataSourceIdx + 1));
-    }
 
-    const nextLocation = {
-      pathname: '/',
-      search: preserveQueryParameters(searchQuery, location.search),
-    };
-
-    navigate(nextLocation);
-  };
-
-  const { t } = useTranslation();
-  const { show } = useModal();
-
-  const menuOptions = [
-    {
-      title: t('Header:About'),
-      icon: 'info',
-      onClick: () =>
-        show({
-          content: AboutModal,
-          title: t('AboutModal:About OHIF Viewer'),
-          containerClassName: 'flex max-w-3xl p-6 flex-col',
-        }),
-    },
-    {
-      title: UserPreferencesModal.menuTitle ?? t('Header:Preferences'),
-      icon: 'settings',
-      onClick: () =>
-        show({
-          content: UserPreferencesModal,
-          title: UserPreferencesModal.title ?? t('UserPreferencesModal:User preferences'),
-          containerClassName:
-            UserPreferencesModal?.containerClassName ?? 'flex max-w-4xl p-6 flex-col',
-        }),
-    },
-  ];
-
-  if (appConfig.oidc) {
-    menuOptions.push({
-      title: t('Header:Logout'),
-      icon: 'power-off',
-      onClick: async () => {
-        navigate(`/logout?redirect_uri=${encodeURIComponent(window.location.href)}`);
-      },
-    });
-  }
 
   return (
     <Header
-      menuOptions={menuOptions}
-      isReturnEnabled={!!appConfig.showStudyList}
-      onClickReturnButton={onClickReturnButton}
-      WhiteLabeling={appConfig.whiteLabeling}
       Secondary={<Toolbar buttonSection="secondary" />}
-      PatientInfo={
-        appConfig.showPatientInfo !== PatientInfoVisibility.DISABLED && (
-          <HeaderPatientInfo
-            servicesManager={servicesManager}
-            appConfig={appConfig}
-          />
-        )
-      }
-      UndoRedo={
-        <div className="text-primary flex cursor-pointer items-center">
-          <Button
-            variant="ghost"
-            className="hover:bg-muted"
-            data-cy="undo-btn"
-            onClick={() => {
-              commandsManager.run('undo');
-            }}
-          >
-            <Icons.Undo className="" />
-          </Button>
-          <Button
-            variant="ghost"
-            className="hover:bg-muted"
-            data-cy="redo-btn"
-            onClick={() => {
-              commandsManager.run('redo');
-            }}
-          >
-            <Icons.Redo className="" />
-          </Button>
-        </div>
-      }
     >
       <div
-        className="relative flex items-center w-full group mx-auto px-10 h-full"
+        className="relative flex items-center justify-center w-full group mx-auto px-10 h-full gap-2"
         style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
       >
         <style>{`
@@ -222,10 +133,32 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
         )}
         <div
           ref={scrollRef}
-          className="flex items-center gap-[4px] overflow-x-auto no-scrollbar py-1 scroll-smooth w-full justify-start md:justify-center"
+          className={`flex items-center gap-[4px] overflow-x-auto no-scrollbar py-1 scroll-smooth justify-start ${hasScroll ? 'w-full' : 'w-auto'}`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <Toolbar buttonSection="primary" />
+        </div>
+        <div className="text-primary flex cursor-pointer items-center border-l border-border pl-1 h-7 gap-[2px] flex-shrink-0">
+          <Button
+            variant="ghost"
+            className="hover:bg-muted h-7 px-1.5"
+            data-cy="undo-btn"
+            onClick={() => {
+              commandsManager.run('undo');
+            }}
+          >
+            <Icons.Undo className="" />
+          </Button>
+          <Button
+            variant="ghost"
+            className="hover:bg-muted h-7 px-1.5"
+            data-cy="redo-btn"
+            onClick={() => {
+              commandsManager.run('redo');
+            }}
+          >
+            <Icons.Redo className="" />
+          </Button>
         </div>
         {hasScroll && (
           <button

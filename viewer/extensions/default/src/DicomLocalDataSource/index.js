@@ -74,6 +74,7 @@ function createDicomLocalApi(dicomLocalConfig) {
                 description: firstInstance.StudyDescription,
                 mrn: firstInstance.PatientID,
                 patientName: utils.formatPN(firstInstance.PatientName),
+                patientSex: firstInstance.PatientSex || '',
                 studyInstanceUid: firstInstance.StudyInstanceUID,
                 time: firstInstance.StudyTime,
                 //

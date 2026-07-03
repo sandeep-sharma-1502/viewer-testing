@@ -8,6 +8,11 @@ const { filterAnd, filterMeasurementsByStudyUID, filterMeasurementsBySeriesUID }
   utils.MeasurementFilters;
 
 async function promptSaveReport({ servicesManager, commandsManager, extensionManager }, ctx, evt) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ohif-open-right-panel'));
+  }
+  return null;
+  /*
   const { measurementService, displaySetService } = servicesManager.services;
   const viewportId = evt.viewportId === undefined ? evt.data.viewportId : evt.viewportId;
   const isBackupSave = evt.isBackupSave === undefined ? evt.data.isBackupSave : evt.isBackupSave;
@@ -79,6 +84,7 @@ async function promptSaveReport({ servicesManager, commandsManager, extensionMan
     console.warn('Unable to save report', error);
     return null;
   }
+  */
 }
 
 export function findPredecessorImageId(annotations) {

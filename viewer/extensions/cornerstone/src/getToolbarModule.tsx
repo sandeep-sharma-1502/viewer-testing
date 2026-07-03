@@ -465,7 +465,16 @@ export default function getToolbarModule({ servicesManager, extensionManager }: 
     },
     {
       name: 'evaluate.action',
-      evaluate: () => {
+      evaluate: ({ button }) => {
+        if (button?.id === 'Report') {
+          const isActive =
+            typeof document !== 'undefined' &&
+            (document.getElementById('viewerLayoutResizableRightPanel')?.offsetWidth ?? 0) > 0;
+          return {
+            disabled: false,
+            isActive,
+          };
+        }
         return {
           disabled: false,
         };

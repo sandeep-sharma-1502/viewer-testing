@@ -136,6 +136,7 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
               accession: study.accessionNumber || '',
               mrn: study.patient?.patientID || '',
               patientName: study.patient?.patientName || '',
+              patientSex: study.patient?.patientSex || study.patient?.patientGender || study.patient?.gender || study.patient?.sex || study.patientSex || study.patientGender || study.gender || study.sex || '',
               instances: Number(study.uploadedCount || study.instanceCount || 0),
               description: study.studyDescription || '',
               modalities: study.modality || '',

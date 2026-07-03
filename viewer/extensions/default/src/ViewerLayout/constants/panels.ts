@@ -5,7 +5,7 @@ const collapsedWidth = 25;
 
 const getPanelGroupDefinition = ({
   leftPanelInitialExpandedWidth = 282,
-  rightPanelInitialExpandedWidth = 280,
+  rightPanelInitialExpandedWidth = 480,
   leftPanelMinimumExpandedWidth = 145,
   rightPanelMinimumExpandedWidth = 280,
 }) => {
@@ -34,7 +34,7 @@ const getPanelGroupDefinition = ({
       initialExpandedWidth: rightPanelInitialExpandedWidth,
       minimumExpandedOffsetWidth: rightPanelMinimumExpandedWidth + expandedInsideBorderSize,
       initialExpandedOffsetWidth: rightPanelInitialExpandedWidth + expandedInsideBorderSize,
-      collapsedOffsetWidth: collapsedWidth + collapsedInsideBorderSize + collapsedOutsideBorderSize,
+      collapsedOffsetWidth: 0,
     },
   };
 };

@@ -8,13 +8,6 @@ import { id } from './id';
 const { TOOLBAR_SECTIONS } = ToolbarService;
 const { structuredCloneWithFunctions } = utils;
 
-/**
- * Define non-imaging modalities.
- * This can be used to exclude modes which have only these modalities,
- * or it can be used to not display thumbnails for some of these.
- * This list used to include SM, for whole slide imaging, but this is now supported
- * by cornerstone.  Others of these may get added.
- */
 export const NON_IMAGE_MODALITIES = ['SEG', 'RTSTRUCT', 'RTPLAN', 'PR', 'SR'];
 
 export const ohif = {
@@ -215,6 +208,7 @@ export function onModeExit({ servicesManager }: withAppTypes) {
 
 export const toolbarSections = {
   [TOOLBAR_SECTIONS.primary]: [
+    'Report',
     'Length',
     'Angle',
     'MeasurementTools',

@@ -319,6 +319,8 @@ export default function PanelSegmentation({
   };
 
   return (
+    // isme kabhi bhi kuch show nhi karna hai jo jo show ho ta hai use remove mat karo comment kar do
+    /*
     <Popover
       open={!!activeUtilityOptions}
       onOpenChange={handlePopoverOpenChange}
@@ -341,5 +343,7 @@ export default function PanelSegmentation({
         </PopoverContent>
       )}
     </Popover>
+    */
+    null
   );
 }

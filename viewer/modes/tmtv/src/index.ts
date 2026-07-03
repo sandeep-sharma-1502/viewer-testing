@@ -90,6 +90,7 @@ function modeFactory({ modeConfiguration }) {
       unsubscriptions.push(unsubscribe);
       toolbarService.register(toolbarButtons);
       toolbarService.updateSection(toolbarService.sections.primary, [
+        'Report',
         'MeasurementTools',
         'Zoom',
         'Pan',

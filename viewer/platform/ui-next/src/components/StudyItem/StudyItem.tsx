@@ -23,6 +23,9 @@ const StudyItem = ({
   ThumbnailMenuItems,
   StudyMenuItems,
   StudyInstanceUID,
+  patientName,
+  patientId,
+  patientSex,
 }: withAppTypes) => {
   return (
     <Accordion
@@ -36,35 +39,51 @@ const StudyItem = ({
     >
       <AccordionItem value="study-item">
         <AccordionTrigger className={classnames('hover:bg-accent bg-popover group w-full rounded')}>
-          <div className="flex h-[40px] w-full flex-row overflow-hidden">
+          <div className="flex h-auto py-1 w-full flex-row overflow-hidden">
             <div className="flex w-full flex-row items-center justify-between">
-              <div className="flex min-w-0 flex-col items-start text-[13px]">
-                <Tooltip>
-                  <TooltipContent>{date}</TooltipContent>
-                  <TooltipTrigger
-                    className="w-full"
-                    asChild
-                  >
-                    <div className="text-foreground h-[18px] w-full max-w-[160px] overflow-hidden truncate whitespace-nowrap text-left">
-                      {date}
-                    </div>
-                  </TooltipTrigger>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipContent>{description}</TooltipContent>
-                  <TooltipTrigger
-                    className="w-full"
-                    asChild
-                  >
-                    <div className="text-muted-foreground h-[18px] w-full overflow-hidden truncate whitespace-nowrap text-left">
-                      {description}
-                    </div>
-                  </TooltipTrigger>
-                </Tooltip>
-              </div>
+              {patientName ? (
+                <div className="flex min-w-0 flex-col items-start gap-[2px]">
+                  <div className="text-foreground self-start text-[13px] font-bold truncate max-w-[160px]" title={patientName}>
+                    {patientName}
+                  </div>
+                  <div className="text-muted-foreground flex gap-2 text-[11px] truncate w-full">
+                    {patientId && <div>{patientId}</div>}
+                    {patientSex && <div>{patientSex}</div>}
+                  </div>
+                  <div className="text-muted-foreground flex gap-2 text-[11px] truncate w-full">
+                    {date && <div className="text-foreground">{date}</div>}
+                    {description && <div title={description}>{description}</div>}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex min-w-0 flex-col items-start text-[13px]">
+                  <Tooltip>
+                    <TooltipContent>{date}</TooltipContent>
+                    <TooltipTrigger
+                      className="w-full"
+                      asChild
+                    >
+                      <div className="text-foreground h-[18px] w-full max-w-[160px] overflow-hidden truncate whitespace-nowrap text-left">
+                        {date}
+                      </div>
+                    </TooltipTrigger>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipContent>{description}</TooltipContent>
+                    <TooltipTrigger
+                      className="w-full"
+                      asChild
+                    >
+                      <div className="text-muted-foreground h-[18px] w-full overflow-hidden truncate whitespace-nowrap text-left">
+                        {description}
+                      </div>
+                    </TooltipTrigger>
+                  </Tooltip>
+                </div>
+              )}
               <div className="text-muted-foreground flex flex-col items-end pl-[10px] text-[12px]">
                 <div className="max-w-[150px] overflow-hidden text-ellipsis">{modalities}</div>
-                <div>{numInstances}</div>
+                <div>{!isNaN(Number(numInstances)) ? numInstances : ''}</div>
               </div>
               {StudyMenuItems && (
                 <div className="ml-2 flex items-center">
@@ -112,6 +131,9 @@ StudyItem.propTypes = {
   viewPreset: PropTypes.string,
   StudyMenuItems: PropTypes.func,
   StudyInstanceUID: PropTypes.string,
+  patientName: PropTypes.string,
+  patientId: PropTypes.string,
+  patientSex: PropTypes.string,
 };
 
 export { StudyItem };

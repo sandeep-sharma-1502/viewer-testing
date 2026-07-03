@@ -243,6 +243,7 @@ import Undo from './Sources/Undo';
 import TabContours from './Sources/TabContours';
 import IllustrationNotFound from './Sources/IllustrationNotFound';
 import SettingsStudyList from './Sources/SettingsStudyList';
+import ReportIcon from './Sources/ReportIcon';
 //
 //
 type IconProps = React.HTMLAttributes<SVGElement>;
@@ -259,6 +260,8 @@ const ImageWrapper = ({ src, ...props }: { src: string } & ImageIconProps) => {
 };
 
 export const Icons = {
+  'icon-report': (props: IconProps) => ReportIcon(props),
+  'tool-report': (props: IconProps) => ReportIcon(props),
   'icon-tool-fullscreen': (props: IconProps) => ToolFullscreen(props),
   'tool-fullscreen': (props: IconProps) => ToolFullscreen(props),
   'CT-AAA': (props: ImageIconProps) => (

@@ -10,6 +10,17 @@ export const setToolActiveToolbar = {
 };
 
 const toolbarButtons: Button[] = [
+  {
+    id: 'Report',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-report',
+      label: 'Report',
+      tooltip: 'Create/Save Report',
+      commands: 'promptSaveReport',
+      evaluate: 'evaluate.action',
+    },
+  },
   // sections
   {
     id: 'MeasurementTools',

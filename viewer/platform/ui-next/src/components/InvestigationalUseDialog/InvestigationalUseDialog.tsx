@@ -63,6 +63,9 @@ const InvestigationalUseDialog = ({
     return null;
   }
 
+  // Banner permanently hidden
+  return null;
+
   return (
     <div className="fixed bottom-2 z-50 flex h-[86px] w-full justify-center">
       <div className="bg-popover border-muted flex w-[90%] items-center justify-between rounded-lg border-2 pl-[22px] pr-[22px] pt-[10px] pb-[10px] shadow-lg">

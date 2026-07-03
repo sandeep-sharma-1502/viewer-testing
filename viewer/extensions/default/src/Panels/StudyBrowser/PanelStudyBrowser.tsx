@@ -196,6 +196,9 @@ function PanelStudyBrowser({
           description: qidoStudy.StudyDescription,
           modalities: qidoStudy.ModalitiesInStudy,
           numInstances: Number(qidoStudy.NumInstances),
+          patientName: qidoStudy.PatientName || '',
+          patientId: qidoStudy.PatientID || '',
+          patientSex: qidoStudy.PatientSex || '',
         };
       });
 
@@ -521,6 +524,7 @@ function _mapDataSourceStudies(studies) {
       PatientName: study.patientName,
       StudyInstanceUID: study.studyInstanceUid,
       StudyTime: study.time,
+      PatientSex: study.patientSex || '',
     };
   });
 }
