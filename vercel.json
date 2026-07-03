@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm run build-all",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/viewer/:path*",
+      "destination": "/viewer/index.html"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}
