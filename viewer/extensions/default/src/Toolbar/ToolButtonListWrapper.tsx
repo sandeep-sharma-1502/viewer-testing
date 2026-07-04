@@ -49,13 +49,13 @@ export default function ToolButtonListWrapper({ buttonSection, id }: ToolButtonL
             onInteraction={({ itemId }) =>
               onInteraction?.({ id, itemId, commands: primary.commands })
             }
-            className={primary.className}
+            className={`${primary.className || ''} !rounded-l-lg !rounded-r-none`.trim()}
           />
         </div>
       </ToolButtonListDefault>
       <ToolButtonListDivider className={primary.isActive ? 'opacity-0' : 'opacity-100'} />
       <div data-cy={`${id}-split-button-secondary`}>
-        <ToolButtonListDropDown>
+        <ToolButtonListDropDown isActive={primary.isActive}>
           {items.map(item => {
             return (
               <ToolButtonListItem

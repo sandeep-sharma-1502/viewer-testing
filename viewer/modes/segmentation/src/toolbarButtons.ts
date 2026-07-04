@@ -33,6 +33,17 @@ export const toolbarButtons: Button[] = [
     },
   },
   {
+    id: 'ClearMeasurements',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-clear-all',
+      label: 'Clear All',
+      tooltip: 'Clear All Measurements',
+      commands: 'clearMeasurements',
+      evaluate: 'evaluate.action',
+    },
+  },
+  {
     id: 'AdvancedRenderingControls',
     uiType: 'ohif.advancedRenderingControls',
     props: {
@@ -332,7 +343,7 @@ export const toolbarButtons: Button[] = [
     uiType: 'ohif.toolButton',
     props: {
       icon: 'tool-flip-horizontal',
-      label: i18n.t('Buttons:Flip Horizontal'),
+      label: 'Flip H',
       tooltip: i18n.t('Buttons:Flip Horizontally'),
       commands: 'flipViewportHorizontal',
       evaluate: [

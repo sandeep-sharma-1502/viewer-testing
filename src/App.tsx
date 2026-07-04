@@ -120,12 +120,8 @@ function Home() {
             flexDirection: 'column',
             gap: '1.5rem',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '32px' }}>🩻</span>
-              <div style={{ textAlign: 'left' }}>
-                <h2 style={{ margin: 0, fontSize: '18px', color: '#f8fafc', fontWeight: 600 }}>Remote Study Scans</h2>
-                <p style={{ margin: 0, color: '#94a3b8', fontSize: '13px', marginTop: '2px' }}>Select a study scan below to open in the viewer.</p>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
+              <span style={{ fontSize: '400px' }}>🩻</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -236,8 +236,28 @@ const ReportEditor = () => {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const charCount = text.length;
 
+  const slideInStyle = `
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0.3;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+
   return (
-    <div className="flex flex-col flex-1 h-full bg-background p-4 text-foreground gap-3 select-text">
+    <div 
+      className="flex flex-col flex-1 h-full bg-background p-4 text-foreground gap-3 select-text"
+      style={{
+        animation: 'slideInFromRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        willChange: 'transform, opacity'
+      }}
+    >
+      <style>{slideInStyle}</style>
       <div className="flex items-center justify-between border-b border-muted pb-2">
         <h4 className="text-[14px] font-bold text-primary flex items-center gap-1.5">
           <Icons.ByName name="info" className="w-4 h-4" />
@@ -349,9 +369,28 @@ const SidePanel = ({
   expandedInsideBorderSize = 4,
   collapsedInsideBorderSize = 8,
   collapsedOutsideBorderSize = 4,
-}: SidePanelProps) => {
+  ...restProps
+}: any) => {
   const [panelOpen, setPanelOpen] = useState(isExpanded);
-  const [activeTabIndex, setActiveTabIndex] = useState(activeTabIndexProp ?? 0);
+
+  const allTabs = React.useMemo(() => {
+    if (side === 'right') {
+      return [
+        {
+          name: 'reportEditor',
+          id: 'reportEditor',
+          iconName: 'tab-patient-info',
+          iconLabel: 'Report',
+          label: 'Report',
+          content: ReportEditor,
+        },
+        ...tabs,
+      ];
+    }
+    return tabs;
+  }, [side, tabs]);
+
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   const [styleMap, setStyleMap] = useState(
     createStyleMap(
@@ -369,7 +408,7 @@ const SidePanel = ({
     expandedWidth - closeIconWidth - gridHorizontalPadding
   );
 
-  const [gridWidth, setGridWidth] = useState(getGridWidth(tabs.length, gridAvailableWidth));
+  const [gridWidth, setGridWidth] = useState(getGridWidth(allTabs.length, gridAvailableWidth));
   const openStatus = panelOpen ? 'open' : 'closed';
   const style = Object.assign({}, styleMap[openStatus][side], baseStyle);
 
@@ -389,18 +428,30 @@ const SidePanel = ({
   );
 
   const updateActiveTabIndex = useCallback(
-    (activeTabIndex: number, forceOpen: boolean = false) => {
+    (newActiveIndex: number, forceOpen: boolean = false) => {
       if (forceOpen) {
         updatePanelOpen(true);
       }
 
-      setActiveTabIndex(activeTabIndex);
+      setActiveTabIndex(newActiveIndex);
 
       if (onActiveTabIndexChange) {
-        onActiveTabIndexChange({ activeTabIndex });
+        if (side === 'right') {
+          const selectedTab = allTabs[newActiveIndex];
+          const indexInParentTabs = tabs.findIndex(
+            t => t.name === selectedTab.name || t.id === selectedTab.id
+          );
+          if (indexInParentTabs !== -1) {
+            onActiveTabIndexChange({ activeTabIndex: indexInParentTabs });
+          } else {
+            onActiveTabIndexChange({ activeTabIndex: -1 });
+          }
+        } else {
+          onActiveTabIndexChange({ activeTabIndex: newActiveIndex });
+        }
       }
     },
-    [onActiveTabIndexChange, updatePanelOpen]
+    [onActiveTabIndexChange, updatePanelOpen, side, tabs, allTabs]
   );
 
   useEffect(() => {
@@ -411,6 +462,7 @@ const SidePanel = ({
     const handleOpenRightPanel = () => {
       if (side === 'right') {
         updatePanelOpen(true);
+        setActiveTabIndex(0);
       }
     };
     window.addEventListener('ohif-open-right-panel', handleOpenRightPanel);
@@ -433,22 +485,36 @@ const SidePanel = ({
 
     const gridAvailableWidth = expandedWidth - closeIconWidth - gridHorizontalPadding;
     setGridAvailableWidth(gridAvailableWidth);
-    setGridWidth(getGridWidth(tabs.length, gridAvailableWidth));
+    setGridWidth(getGridWidth(allTabs.length, gridAvailableWidth));
   }, [
     collapsedInsideBorderSize,
     collapsedWidth,
     expandedWidth,
     expandedInsideBorderSize,
-    tabs.length,
+    allTabs.length,
     collapsedOutsideBorderSize,
   ]);
 
   useEffect(() => {
-    updateActiveTabIndex(activeTabIndexProp ?? 0);
-  }, [activeTabIndexProp, updateActiveTabIndex]);
+    if (activeTabIndexProp !== undefined) {
+      if (side === 'right') {
+        const targetTab = tabs[activeTabIndexProp];
+        if (targetTab) {
+          const indexInAllTabs = allTabs.findIndex(
+            t => t.name === targetTab.name || t.id === targetTab.id
+          );
+          if (indexInAllTabs !== -1) {
+            setActiveTabIndex(indexInAllTabs);
+          }
+        }
+      } else {
+        setActiveTabIndex(activeTabIndexProp);
+      }
+    }
+  }, [activeTabIndexProp, side, tabs, allTabs]);
 
   const getCloseStateComponent = () => {
-    const _childComponents = Array.isArray(tabs) ? tabs : [tabs];
+    const _childComponents = Array.isArray(allTabs) ? allTabs : [allTabs];
     return (
       <>
         <div
@@ -465,87 +531,43 @@ const SidePanel = ({
             className={classnames('text-primary', side === 'left' && 'rotate-180 transform')}
           />
         </div>
-        {side !== 'right' ? (
-          <div className={classnames('mt-3 flex flex-col space-y-3')}>
-            {_childComponents.map((childComponent, index) => (
-              <Tooltip key={index}>
-                <TooltipTrigger>
-                  <div
-                    id={`${childComponent.name}-btn`}
-                    data-cy={`${childComponent.name}-btn`}
-                    className="text-primary hover:cursor-pointer"
-                    onClick={() => {
-                      return childComponent.disabled ? null : updateActiveTabIndex(index, true);
-                    }}
-                  >
-                    {React.createElement(Icons[childComponent.iconName] || Icons.MissingIcon, {
-                      className: classnames({
-                        'text-primary': true,
-                        'ohif-disabled': childComponent.disabled,
-                      }),
-                      style: {
-                        width: '22px',
-                        height: '22px',
-                      },
-                    })}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side={side === 'left' ? 'right' : 'left'}>
-                  <div
-                    className={classnames(
-                      'flex items-center',
-                      side === 'left' ? 'justify-end' : 'justify-start'
-                    )}
-                  >
-                    {getToolTipContent(childComponent.label, childComponent.disabled)}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-        ) : (
-          // isme kabhi bhi kuch show nhi karna hai jo jo show ho ta hai use remove mat karo comment kar do
-          /*
-          <div className={classnames('mt-3 flex flex-col space-y-3')}>
-            {_childComponents.map((childComponent, index) => (
-              <Tooltip key={index}>
-                <TooltipTrigger>
-                  <div
-                    id={`${childComponent.name}-btn`}
-                    data-cy={`${childComponent.name}-btn`}
-                    className="text-primary hover:cursor-pointer"
-                    onClick={() => {
-                      return childComponent.disabled ? null : updateActiveTabIndex(index, true);
-                    }}
-                  >
-                    {React.createElement(Icons[childComponent.iconName] || Icons.MissingIcon, {
-                      className: classnames({
-                        'text-primary': true,
-                        'ohif-disabled': childComponent.disabled,
-                      }),
-                      style: {
-                        width: '22px',
-                        height: '22px',
-                      },
-                    })}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side={side === 'left' ? 'right' : 'left'}>
-                  <div
-                    className={classnames(
-                      'flex items-center',
-                      side === 'left' ? 'justify-end' : 'justify-start'
-                    )}
-                  >
-                    {getToolTipContent(childComponent.label, childComponent.disabled)}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-          */
-          null
-        )}
+        <div className={classnames('mt-3 flex flex-col space-y-3')}>
+          {_childComponents.map((childComponent, index) => (
+            <Tooltip key={index}>
+              <TooltipTrigger>
+                <div
+                  id={`${childComponent.name}-btn`}
+                  data-cy={`${childComponent.name}-btn`}
+                  className="text-primary hover:cursor-pointer"
+                  onClick={() => {
+                    return childComponent.disabled ? null : updateActiveTabIndex(index, true);
+                  }}
+                >
+                  {React.createElement(Icons[childComponent.iconName] || Icons.MissingIcon, {
+                    className: classnames({
+                      'text-primary': true,
+                      'ohif-disabled': childComponent.disabled,
+                    }),
+                    style: {
+                      width: '22px',
+                      height: '22px',
+                    },
+                  })}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side={side === 'left' ? 'right' : 'left'}>
+                <div
+                  className={classnames(
+                    'flex items-center',
+                    side === 'left' ? 'justify-end' : 'justify-start'
+                  )}
+                >
+                  {getToolTipContent(childComponent.label, childComponent.disabled)}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
       </>
     );
   };
@@ -574,126 +596,65 @@ const SidePanel = ({
   };
 
   const getTabGridComponent = () => {
-    const numCols = getNumGridColumns(tabs.length, gridWidth);
+    const numCols = getNumGridColumns(allTabs.length, gridWidth);
 
     return (
       <>
         {getCloseIcon()}
-        {side !== 'right' ? (
-          <div className={classnames('flex grow justify-center')}>
-            <div className={classnames('bg-muted text-primary flex flex-wrap')}>
-              {tabs.map((tab, tabIndex) => {
-                const { disabled } = tab;
-                return (
-                  <React.Fragment key={tabIndex}>
-                    {tabIndex % numCols !== 0 && (
+        <div className={classnames('flex grow justify-center')}>
+          <div className={classnames('bg-muted text-primary flex flex-wrap')}>
+            {allTabs.map((tab, tabIndex) => {
+              const { disabled } = tab;
+              return (
+                <React.Fragment key={tabIndex}>
+                  {tabIndex % numCols !== 0 && (
+                    <div
+                      className={classnames('flex h-[28px] w-[2px] items-center', tabSpacerWidth)}
+                    >
+                      <div className="bg-muted h-[20px] w-full"></div>
+                    </div>
+                  )}
+                  <Tooltip key={tabIndex}>
+                    <TooltipTrigger>
                       <div
-                        className={classnames('flex h-[28px] w-[2px] items-center', tabSpacerWidth)}
+                        className={getTabClassNames(
+                          numCols,
+                          allTabs.length,
+                          tabIndex,
+                          tabIndex === activeTabIndex,
+                          disabled
+                        )}
+                        style={getTabStyle(allTabs.length)}
+                        onClick={() => {
+                          return disabled ? null : updateActiveTabIndex(tabIndex);
+                        }}
+                        data-cy={`${tab.name}-btn`}
                       >
-                        <div className="bg-muted h-[20px] w-full"></div>
-                      </div>
-                    )}
-                    <Tooltip key={tabIndex}>
-                      <TooltipTrigger>
                         <div
-                          className={getTabClassNames(
-                            numCols,
-                            tabs.length,
-                            tabIndex,
-                            tabIndex === activeTabIndex,
-                            disabled
-                          )}
-                          style={getTabStyle(tabs.length)}
-                          onClick={() => {
-                            return disabled ? null : updateActiveTabIndex(tabIndex);
-                          }}
-                          data-cy={`${tab.name}-btn`}
+                          className={getTabIconClassNames(allTabs.length, tabIndex === activeTabIndex)}
                         >
-                          <div
-                            className={getTabIconClassNames(tabs.length, tabIndex === activeTabIndex)}
-                          >
-                            {React.createElement(Icons[tab.iconName] || Icons.MissingIcon, {
-                              className: classnames({
-                                'text-primary': true,
-                                'ohif-disabled': disabled,
-                              }),
-                              style: {
-                                width: '22px',
-                                height: '22px',
-                              },
-                            })}
-                          </div>
+                          {React.createElement(Icons[tab.iconName] || Icons.MissingIcon, {
+                            className: classnames({
+                              'text-primary': true,
+                              'ohif-disabled': disabled,
+                            }),
+                            style: {
+                              width: '22px',
+                              height: '22px',
+                            },
+                          })}
                         </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        {getToolTipContent(tab.label, disabled)}
-                      </TooltipContent>
-                    </Tooltip>
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          // isme kabhi bhi kuch show nhi karna hai jo jo show ho ta hai use remove mat karo comment kar do
-          /*
-          <div className={classnames('flex grow justify-center')}>
-            <div className={classnames('bg-muted text-primary flex flex-wrap')}>
-              {tabs.map((tab, tabIndex) => {
-                const { disabled } = tab;
-                return (
-                  <React.Fragment key={tabIndex}>
-                    {tabIndex % numCols !== 0 && (
-                      <div
-                        className={classnames('flex h-[28px] w-[2px] items-center', tabSpacerWidth)}
-                      >
-                        <div className="bg-muted h-[20px] w-full"></div>
                       </div>
-                    )}
-                    <Tooltip key={tabIndex}>
-                      <TooltipTrigger>
-                        <div
-                          className={getTabClassNames(
-                            numCols,
-                            tabs.length,
-                            tabIndex,
-                            tabIndex === activeTabIndex,
-                            disabled
-                          )}
-                          style={getTabStyle(tabs.length)}
-                          onClick={() => {
-                            return disabled ? null : updateActiveTabIndex(tabIndex);
-                          }}
-                          data-cy={`${tab.name}-btn`}
-                        >
-                          <div
-                            className={getTabIconClassNames(tabs.length, tabIndex === activeTabIndex)}
-                          >
-                            {React.createElement(Icons[tab.iconName] || Icons.MissingIcon, {
-                              className: classnames({
-                                'text-primary': true,
-                                'ohif-disabled': disabled,
-                              }),
-                              style: {
-                                width: '22px',
-                                height: '22px',
-                              },
-                            })}
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        {getToolTipContent(tab.label, disabled)}
-                      </TooltipContent>
-                    </Tooltip>
-                  </React.Fragment>
-                );
-              })}
-            </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      {getToolTipContent(tab.label, disabled)}
+                    </TooltipContent>
+                  </Tooltip>
+                </React.Fragment>
+              );
+            })}
           </div>
-          */
-          null
-        )}
+        </div>
       </>
     );
   };
@@ -705,26 +666,23 @@ const SidePanel = ({
           'text-primary flex grow select-none justify-center self-center text-[13px]',
           side !== 'right' && 'cursor-pointer'
         )}
-        data-cy={`${tabs[0].name}-btn`}
+        data-cy={`${allTabs[0].name}-btn`}
         onClick={side !== 'right' ? () => updatePanelOpen(!panelOpen) : undefined}
       >
         {getCloseIcon()}
-        {side !== 'right' ? (
-          <span>{tabs[0].label}</span>
-        ) : (
-          // isme kabhi bhi kuch show nhi karna hai jo jo show ho ta hai use remove mat karo comment kar do
-          // <span>{tabs[0].label}</span>
-          null
-        )}
+        <span>{allTabs[0].label}</span>
       </div>
     );
   };
 
   const getOpenStateComponent = () => {
+    if (side === 'right') {
+      return null;
+    }
     return (
       <>
         <div className="bg-muted flex h-[40px] flex-shrink-0 select-none rounded-t p-2">
-          {tabs.length === 1 ? getOneTabComponent() : getTabGridComponent()}
+          {allTabs.length === 1 ? getOneTabComponent() : getTabGridComponent()}
         </div>
         <Separator
           orientation="horizontal"
@@ -742,17 +700,13 @@ const SidePanel = ({
     >
       {panelOpen ? (
         <>
-          {side !== 'right' && getOpenStateComponent()}
-          {side === 'right' ? (
-            <ReportEditor />
-          ) : (
-            tabs.map((tab, tabIndex) => {
-              if (tabIndex === activeTabIndex) {
-                return <tab.content key={tabIndex} />;
-              }
-              return null;
-            })
-          )}
+          {getOpenStateComponent()}
+          {allTabs.map((tab, tabIndex) => {
+            if (tabIndex === activeTabIndex) {
+              return <tab.content key={tabIndex} {...restProps} />;
+            }
+            return null;
+          })}
         </>
       ) : (
         <React.Fragment>{getCloseStateComponent()}</React.Fragment>

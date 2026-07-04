@@ -28,7 +28,17 @@ export default function getToolbarModule({ servicesManager, extensionManager }: 
     displaySetService,
     viewportGridService,
     segmentationService,
+    measurementService,
   } = servicesManager.services;
+
+  if (measurementService) {
+    const refresh = () => {
+      toolbarService?.refreshToolbarState();
+    };
+    measurementService.subscribe(measurementService.EVENTS.MEASUREMENT_ADDED, refresh);
+    measurementService.subscribe(measurementService.EVENTS.MEASUREMENT_REMOVED, refresh);
+    measurementService.subscribe(measurementService.EVENTS.MEASUREMENTS_CLEARED, refresh);
+  }
 
   return [
     {
@@ -473,6 +483,12 @@ export default function getToolbarModule({ servicesManager, extensionManager }: 
           return {
             disabled: false,
             isActive,
+          };
+        }
+        if (button?.id === 'ClearMeasurements') {
+          const measurements = measurementService?.getMeasurements?.() || [];
+          return {
+            disabled: measurements.length === 0,
           };
         }
         return {

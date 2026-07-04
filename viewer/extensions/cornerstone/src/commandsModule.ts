@@ -1128,6 +1128,36 @@ function commandsModule({
 
       const activeToolName = toolGroup.getActivePrimaryMouseButtonTool();
 
+      if (activeToolName === toolName) {
+        const manipulationTools = ['WindowLevel', 'Pan', 'Zoom', 'StackScroll', 'TrackballRotate'];
+        const isManipulationTool = manipulationTools.includes(toolName);
+
+        if (!isManipulationTool) {
+          // Toggle the tool off (deactivate/make it passive or disabled)
+          const activeToolOptions = toolGroup.getToolConfiguration(toolName);
+          activeToolOptions?.disableOnPassive
+            ? toolGroup.setToolDisabled(toolName)
+            : toolGroup.setToolPassive(toolName);
+
+          // Find a fallback tool to activate on primary mouse button.
+          let fallbackToolName = typeof toolGroup.getPrevActivePrimaryToolName === 'function'
+            ? toolGroup.getPrevActivePrimaryToolName()
+            : null;
+
+          if (!fallbackToolName || fallbackToolName === toolName || !manipulationTools.includes(fallbackToolName)) {
+            // Fallback to a standard manipulation tool
+            fallbackToolName = manipulationTools.find(t => toolGroup.hasTool(t) && t !== toolName);
+          }
+
+          if (fallbackToolName) {
+            toolGroup.setToolActive(fallbackToolName, {
+              bindings,
+            });
+          }
+          return;
+        }
+      }
+
       if (activeToolName) {
         const activeToolOptions = toolGroup.getToolConfiguration(activeToolName);
         activeToolOptions?.disableOnPassive

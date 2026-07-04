@@ -87,26 +87,28 @@ ToolButtonListDefault.displayName = 'ToolButtonListDefault';
 interface ToolButtonListDropDownProps {
   children: React.ReactNode;
   className?: string;
+  isActive?: boolean;
 }
 
 const ToolButtonListDropDown = React.forwardRef<HTMLDivElement, ToolButtonListDropDownProps>(
-  ({ children, className, ...props }, ref) => (
+  ({ children, className, isActive, ...props }, ref) => (
     <DropdownMenu {...props}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
           className={cn(
-            'text-foreground/80 hover:bg-background hover:text-highlight border-primary',
-            'inline-flex h-10 w-5 items-center justify-center',
+            isActive
+              ? 'bg-highlight text-background hover:!bg-highlight/80'
+              : 'text-foreground/80 hover:bg-background hover:text-highlight bg-transparent',
+            'border-primary inline-flex h-10 w-5 items-center justify-center',
             '!rounded-tr-lg !rounded-br-lg !rounded-tl-none !rounded-bl-none',
-            'bg-transparent',
             className
           )}
         >
           <Icons.ByName
             name="chevron-down"
-            className="text-primary h-5 w-5"
+            className={cn('h-5 w-5', isActive ? 'text-background' : 'text-primary')}
           />
         </Button>
       </DropdownMenuTrigger>

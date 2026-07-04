@@ -108,6 +108,7 @@ const SidePanelWithServices = ({
   return (
     <SidePanel
       {...props}
+      servicesManager={servicesManager}
       side={side}
       tabs={tabs}
       activeTabIndex={activeTabIndex}

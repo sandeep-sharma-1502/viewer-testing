@@ -9,6 +9,7 @@ import ColorChange from './Sources/ColorChange';
 import Controls from './Sources/Controls';
 import Copy from './Sources/Copy';
 import Delete from './Sources/Delete';
+import ClearAll from './Sources/ClearAll';
 import DicomTagBrowser from './Sources/DicomTagBrowser';
 import DisplayFillAndOutline from './Sources/DisplayFillAndOutline';
 import DisplayFillOnly from './Sources/DisplayFillOnly';
@@ -497,6 +498,7 @@ export const Icons = {
   Controls,
   Copy,
   Delete,
+  ClearAll,
   DicomTagBrowser,
   DisplayFillAndOutline,
   DisplayFillOnly,
@@ -766,6 +768,7 @@ export const Icons = {
   'tool-rectangle': (props: IconProps) => ToolRectangle(props),
   'tool-referenceLines': (props: IconProps) => ToolReferenceLines(props),
   'tool-reset': (props: IconProps) => ToolReset(props),
+  'tool-clear-all': (props: IconProps) => ClearAll(props),
   'tool-rotate-right': (props: IconProps) => ToolRotateRight(props),
   'icon-tool-sculptor': (props: IconProps) => ToolSculptor(props),
   'tool-seg-brush': (props: IconProps) => ToolSegBrush(props),
