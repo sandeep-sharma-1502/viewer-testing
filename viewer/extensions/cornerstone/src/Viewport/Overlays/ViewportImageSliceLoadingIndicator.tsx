@@ -2,6 +2,38 @@ import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Enums } from '@cornerstonejs/core';
 
+const getErrorMessage = (error: any): string => {
+  if (!error) {
+    return '';
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'object') {
+    if (error.statusText) {
+      return `${error.status} ${error.statusText}`;
+    }
+    if (error.status) {
+      return `HTTP Status ${error.status}`;
+    }
+    if (error.message) {
+      return error.message;
+    }
+    if (error.responseText) {
+      return error.responseText.substring(0, 100);
+    }
+    try {
+      return JSON.stringify(error);
+    } catch (e) {
+      return String(error);
+    }
+  }
+  return String(error);
+};
+
 function ViewportImageSliceLoadingIndicator({ viewportData, element }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -51,11 +83,11 @@ function ViewportImageSliceLoadingIndicator({ viewportData, element }) {
       <>
         <div className="absolute top-0 left-0 h-full w-full bg-black opacity-50">
           <div className="transparent flex h-full w-full items-center justify-center">
-            <p className="text-highlight text-xl font-light">
-              <h4>Error Loading Image</h4>
-              <p>An error has occurred.</p>
-              <p>{error}</p>
-            </p>
+            <div className="text-highlight text-xl font-light text-center">
+              <h4 className="font-semibold text-lg mb-2">Error Loading Image</h4>
+              <p className="text-sm opacity-80">An error has occurred.</p>
+              <p className="text-sm mt-1">{getErrorMessage(error)}</p>
+            </div>
           </div>
         </div>
       </>

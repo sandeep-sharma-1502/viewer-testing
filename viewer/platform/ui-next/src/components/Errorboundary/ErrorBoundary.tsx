@@ -257,6 +257,50 @@ const DefaultFallback = ({
   );
 };
 
+const isNetworkError = (err: any): boolean => {
+  if (!err) {
+    return false;
+  }
+
+  const errType = typeof err;
+
+  // 1. Direct object inspection (XHR and network response structures)
+  if (errType === 'object') {
+    const hasXHR = typeof XMLHttpRequest !== 'undefined';
+    
+    if (
+      (hasXHR && err instanceof XMLHttpRequest) ||
+      (hasXHR && err.xhr instanceof XMLHttpRequest) ||
+      err.constructor?.name === 'XMLHttpRequest' ||
+      err.xhr?.constructor?.name === 'XMLHttpRequest' ||
+      typeof err.status === 'number' || // HTTP status code is always a number
+      'xhr' in err ||
+      'statusText' in err
+    ) {
+      return true;
+    }
+  }
+
+  // 2. String/Message pattern matching (Fetch/CORS/XHR logs)
+  const message = err.message || (errType === 'string' ? err : '');
+  if (!message) {
+    return false;
+  }
+
+  const lowerMessage = message.toLowerCase();
+  return (
+    lowerMessage.includes('failed to fetch') ||
+    lowerMessage.includes('networkerror') ||
+    lowerMessage.includes('load failed') ||
+    lowerMessage.includes('network error') ||
+    lowerMessage.includes('cross-origin') ||
+    lowerMessage.includes('cors') ||
+    lowerMessage.includes('http status') ||
+    lowerMessage.includes('404') ||
+    lowerMessage.includes('xmlhttprequest')
+  );
+};
+
 const ErrorBoundary = ({
   context = 'OHIF',
   onReset = () => {},
@@ -277,6 +321,11 @@ const ErrorBoundary = ({
     let errorTimeout: NodeJS.Timeout;
 
     const handleError = (event: ErrorEvent) => {
+      const error = event.error;
+      if (isNetworkError(error)) {
+        console.warn('Network error ignored by ErrorBoundary:', error);
+        return;
+      }
       clearTimeout(errorTimeout);
       errorTimeout = setTimeout(() => {
         setError(event.error);
@@ -285,6 +334,11 @@ const ErrorBoundary = ({
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      if (isNetworkError(reason)) {
+        console.warn('Unhandled promise rejection from XHR/network request ignored by ErrorBoundary:', reason);
+        return;
+      }
       event.preventDefault();
       clearTimeout(errorTimeout);
       errorTimeout = setTimeout(() => {

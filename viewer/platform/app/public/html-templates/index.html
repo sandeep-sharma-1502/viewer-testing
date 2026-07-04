@@ -45,6 +45,60 @@
     <script type="text/javascript">
       console.time('scriptToView');
       window.PUBLIC_URL = '<%= PUBLIC_URL %>';
+
+      // Early intercept of unhandled rejections and errors to silence network/XHR/fetch 404 errors 
+      // and prevent dev bundler overlays from crashing or covering the UI.
+      const isNetworkError = function(err) {
+        if (!err) return false;
+        var errType = typeof err;
+        
+        if (errType === 'object') {
+          var hasXHR = typeof XMLHttpRequest !== 'undefined';
+          if (
+            (hasXHR && err instanceof XMLHttpRequest) ||
+            (hasXHR && err.xhr instanceof XMLHttpRequest) ||
+            (err.constructor && err.constructor.name === 'XMLHttpRequest') ||
+            (err.xhr && err.xhr.constructor && err.xhr.constructor.name === 'XMLHttpRequest') ||
+            typeof err.status === 'number' ||
+            'xhr' in err ||
+            'statusText' in err
+          ) {
+            return true;
+          }
+        }
+
+        var message = err.message || (errType === 'string' ? err : '');
+        if (!message) return false;
+
+        var lowerMessage = message.toLowerCase();
+        return (
+          lowerMessage.includes('failed to fetch') ||
+          lowerMessage.includes('networkerror') ||
+          lowerMessage.includes('load failed') ||
+          lowerMessage.includes('network error') ||
+          lowerMessage.includes('cross-origin') ||
+          lowerMessage.includes('cors') ||
+          lowerMessage.includes('http status') ||
+          lowerMessage.includes('404') ||
+          lowerMessage.includes('xmlhttprequest')
+        );
+      };
+
+      window.addEventListener('unhandledrejection', function(event) {
+        if (isNetworkError(event.reason)) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          console.warn('Silenced unhandled network/XHR promise rejection:', event.reason);
+        }
+      }, true); // useCapture = true to run before the dev overlay/refresh listeners
+
+      window.addEventListener('error', function(event) {
+        if (isNetworkError(event.error)) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          console.warn('Silenced unhandled network/XHR error:', event.error);
+        }
+      }, true); // useCapture = true to run before the dev overlay/refresh listeners
     </script>
     <link
       rel="manifest"

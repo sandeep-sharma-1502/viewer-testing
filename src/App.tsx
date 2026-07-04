@@ -186,7 +186,7 @@ function Home() {
                 <button
                   onClick={() => openViewerTab(
                     'Study Scan 36',
-                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/32.json')
+                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/36.json')
                   )}
                   style={{
                     padding: '6px 16px',
