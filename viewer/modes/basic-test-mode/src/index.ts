@@ -96,21 +96,25 @@ function modeFactory() {
         'Report',
         'MeasurementTools',
         'Zoom',
-        'WindowLevelGroup',
+        'Magnify',
+        'AdvancedMagnify',
+        'WindowLevel',
+        'WindowLevelPresets',
         'Pan',
         'Probe',
         'Capture',
         'Layout',
+        'Cine',
         'MPR',
         'Crosshairs',
         'StackScroll',
         'invert',
         'ClearMeasurements',
+        'ImageSliceSync',
         'MoreTools',
       ]);
 
-      toolbarService.updateSection('WindowLevelGroup', [
-        'WindowLevel',
+      toolbarService.updateSection('WindowLevelPresets', [
         'Soft tissue',
         'Lung',
         'Liver',
@@ -144,8 +148,7 @@ function modeFactory() {
         'windowLevelMenu',
       ]);
 
-      toolbarService.updateSection('WindowLevelGroup', [
-        'WindowLevel',
+      toolbarService.updateSection('WindowLevelPresets', [
         'Soft tissue',
         'Lung',
         'Liver',
@@ -168,17 +171,12 @@ function modeFactory() {
         'Reset',
         'rotate-right',
         'flipHorizontal',
-        'ImageSliceSync',
         'ReferenceLines',
         'ImageOverlayViewer',
-        'Cine',
         'Angle',
         'CobbAngle',
-        'Magnify',
         'RectangleROI',
         'CalibrationLine',
-        'TagBrowser',
-        'AdvancedMagnify',
         'UltrasoundDirectionalTool',
         'WindowLevelRegion',
       ]);

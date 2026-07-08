@@ -44,6 +44,13 @@ function PanelStudyBrowser({
   );
   const [hasLoadedViewports, setHasLoadedViewports] = useState(false);
   const [studyDisplayList, setStudyDisplayList] = useState([]);
+  const [showAllStudies, setShowAllStudies] = useState(false);
+
+  useEffect(() => {
+    fetchedStudiesRef.current.clear();
+    setStudyDisplayList([]);
+  }, [showAllStudies]);
+
   const [displaySets, setDisplaySets] = useState([]);
   const [displaySetsLoadingState, setDisplaySetsLoadingState] = useState({});
   const [thumbnailImageSrcMap, setThumbnailImageSrcMap] = useState({});
@@ -182,10 +189,12 @@ function PanelStudyBrowser({
 
       // try to fetch the prior studies based on the patientID if the
       // server can respond.
-      try {
-        qidoStudiesForPatient = await getStudiesForPatientByMRN(qidoForStudyUID);
-      } catch (error) {
-        console.warn(error);
+      if (showAllStudies) {
+        try {
+          qidoStudiesForPatient = await getStudiesForPatientByMRN(qidoForStudyUID);
+        } catch (error) {
+          console.warn(error);
+        }
       }
 
       const mappedStudies = _mapDataSourceStudies(qidoStudiesForPatient);
@@ -214,7 +223,7 @@ function PanelStudyBrowser({
     }
 
     StudyInstanceUIDs.forEach(sid => fetchStudiesForPatient(sid));
-  }, [StudyInstanceUIDs, dataSource, getStudiesForPatientByMRN, navigate]);
+  }, [StudyInstanceUIDs, dataSource, getStudiesForPatientByMRN, navigate, showAllStudies]);
 
   // ~~ Initial Thumbnails
   useEffect(() => {
@@ -466,6 +475,8 @@ function PanelStudyBrowser({
           updateViewPresetValue={updateViewPresetValue}
           actionIcons={actionIcons}
           updateActionIconValue={updateActionIconValue}
+          showAllStudies={showAllStudies}
+          setShowAllStudies={setShowAllStudies}
         />
         <Separator
           orientation="horizontal"

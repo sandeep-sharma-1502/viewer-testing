@@ -213,10 +213,13 @@ export const toolbarSections = {
     'Angle',
     'MeasurementTools',
     'Zoom',
+    'Magnify',
+    'AdvancedMagnify',
     'Pan',
     'Probe',
     'TrackballRotate',
     'WindowLevel',
+    'WindowLevelPresets',
     'rotate-right',
     'flipHorizontal',
     'flipVertical',
@@ -225,10 +228,12 @@ export const toolbarSections = {
     '3DOnly',
     'MPR',
     'Layout',
+    'Cine',
     'Crosshairs',
     'StackScroll',
     'invert',
     'ClearMeasurements',
+    'ImageSliceSync',
     'MoreTools',
   ],
 
@@ -265,18 +270,21 @@ export const toolbarSections = {
 
   MoreTools: [
     'Reset',
-    'ImageSliceSync',
     'ReferenceLines',
     'ImageOverlayViewer',
-    'Cine',
     'CobbAngle',
-    'Magnify',
     'CalibrationLine',
-    'TagBrowser',
-    'AdvancedMagnify',
     'UltrasoundDirectionalTool',
     'WindowLevelRegion',
     'SegmentLabelTool',
+  ],
+
+  WindowLevelPresets: [
+    'Soft tissue',
+    'Lung',
+    'Liver',
+    'Bone',
+    'Brain',
   ],
 };
 

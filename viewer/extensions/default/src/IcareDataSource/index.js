@@ -36,16 +36,121 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
   const { userAuthenticationService } = servicesManager.services;
   const implementation = {
     initialize: async ({ query, url }) => {
-      if (!url && typeof window !== 'undefined') {
-        const searchParams = new URLSearchParams(window.location.search);
-        url = searchParams.get('url');
+      let studyGUID = null;
+      if (query) {
+        studyGUID = query.get('studyGUID') || query.get('studyguid');
       }
-      if (url) {
+      if (!studyGUID && typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search);
+        studyGUID = searchParams.get('studyGUID') || searchParams.get('studyguid');
+      }
+
+      if (studyGUID) {
+        const fakeUrl = `https://files.anikrafoundation.com/json/${studyGUID}.json`;
+        const authHeader = userAuthenticationService?.getAuthorizationHeader?.();
+        const authorizationToken = authHeader?.Authorization || authHeader?.authorization || 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTQSIsImNyZWF0ZWQiOjE3ODMzNDA1MTc4ODAsImV4cCI6MTc4MzM0NTUxN30.NPv5cF_yNXFN5fRUTzOZjogRdT1tZATqbtwgrKL2vPd1ZK4YH6yapVh7dShKs2c_H0ieqbZTc7RTvkHe22DWpQ'
+
+        let studyDetails = _store.loadedJsonMetadata.get(fakeUrl);
+        if (!studyDetails) {
+          const response = await fetch('https://icare.anikrafoundation.com:8443/icarebilling/studymasterservice/getAllStudy', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'authorization': authorizationToken
+            },
+            body: JSON.stringify({
+              reportSearchDTO: {
+                studyGUID: parseInt(studyGUID, 10),
+              }
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch study details for GUID ${studyGUID}: ${response.status}`);
+          }
+          const payload = await response.json();
+          const s = payload.responseList?.[0];
+          if (!s) {
+            throw new Error(`No study found for GUID ${studyGUID}`);
+          }
+
+          studyDetails = {
+            StudyInstanceUID: s.studyInstanceUID,
+            StudyDate: s.studyDate ? s.studyDate.replace(/-/g, '') : '',
+            StudyTime: '',
+            PatientName: s.patientName || s.patient?.patientName || 'Patient',
+            PatientID: s.patientID || s.patient?.patientID || 'ID',
+            AccessionNumber: s.accessionNumber || '',
+            ReferringPhysicianName: s.refPhysicianName || '',
+            StudyDescription: s.studyDescription || '',
+            series: (s.series || []).map(ser => {
+              return {
+                SeriesInstanceUID: ser.seriesInstanceUID,
+                SeriesDescription: ser.seriesDescription || '',
+                SeriesNumber: String(ser.seriesNo || 1),
+                Modality: ser.modality || s.modality || 'CT',
+                SliceThickness: parseFloat(ser.sliceThickness || 0.0),
+                instances: (ser.images || []).map((img, imgIdx) => {
+                  let sopUID = img.imageInstanceUID;
+                  if (!sopUID && img.imageGUID) {
+                    const parts = img.imageGUID.split('.');
+                    if (parts.length > 2) {
+                      sopUID = parts.slice(1, parts.length - 1).join('.');
+                    } else {
+                      sopUID = img.imageGUID;
+                    }
+                  }
+                  if (!sopUID) {
+                    sopUID = `sop-${imgIdx}-${Math.random()}`;
+                  }
+
+                  let imageUrl = img.dcmFileName || '';
+                  if (imageUrl.startsWith('wadouri:')) {
+                    imageUrl = 'dicomweb:' + imageUrl.substring(8);
+                  } else if (!imageUrl.startsWith('dicomweb:') && imageUrl.startsWith('http')) {
+                    imageUrl = 'dicomweb:' + imageUrl;
+                  }
+
+                  return {
+                    metadata: {
+                      StudyInstanceUID: s.studyInstanceUID,
+                      SeriesInstanceUID: ser.seriesInstanceUID,
+                      InstanceNumber: img.instanceNO || (imgIdx + 1),
+                      SOPInstanceUID: sopUID,
+                      SOPClassUID: '1.2.840.10008.5.1.4.1.1.2',
+                      FrameOfReferenceUID: '',
+                      ImageOrientationPatient: [1, 0, 0, 0, 1, 0],
+                      ImagePositionPatient: [0, 0, parseFloat(img.sliceLocation || 0.0)],
+                      PixelSpacing: [1.0, 1.0],
+                      Columns: 512,
+                      Rows: 512,
+                      BitsAllocated: 16,
+                      BitsStored: 16,
+                      HighBit: 15,
+                      PixelRepresentation: 0,
+                      SamplesPerPixel: 1,
+                      PhotometricInterpretation: 'MONOCHROME2',
+                      WindowCenter: parseFloat(ser.wl || 40),
+                      WindowWidth: parseFloat(ser.ww || 80),
+                      Modality: ser.modality || s.modality || 'CT',
+                    },
+                    url: imageUrl,
+                  };
+                })
+              };
+            })
+          };
+
+          _store.loadedJsonMetadata.set(fakeUrl, studyDetails);
+          _store.studyJsonUrlMap.set(studyDetails.StudyInstanceUID, fakeUrl);
+          _store.studyInstanceUIDMap.set(fakeUrl, [studyDetails.StudyInstanceUID]);
+        }
+      } else if (url) {
         const evaluatedUrl = resolveConfigFetchPolicy(url, {
           allowedOrigins: dicomJsonConfig.dangerouslyAllowedOriginsForAuthenticatedEnvironments,
           userAuthenticationService,
         });
-        
+
         let studyDetails = _store.loadedJsonMetadata.get(evaluatedUrl.normalizedUrl);
         if (!studyDetails) {
           const manifest = await fetchConfigJson(evaluatedUrl);
@@ -72,12 +177,15 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
           const modality = param?.modality || null;
           const accessionNumber = param?.accessionNumber || "";
 
+          const authHeader = userAuthenticationService?.getAuthorizationHeader?.();
+          const authorizationToken = authHeader?.Authorization || authHeader?.authorization || 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTQSIsImNyZWF0ZWQiOjE3ODMzNDA1MTc4ODAsImV4cCI6MTc4MzM0NTUxN30.NPv5cF_yNXFN5fRUTzOZjogRdT1tZATqbtwgrKL2vPd1ZK4YH6yapVh7dShKs2c_H0ieqbZTc7RTvkHe22DWpQ';
+
           // Fetch studies from custom billing API using POST
           const response = await fetch('https://icare.anikrafoundation.com:8443/icarebilling/studymasterservice/getAllNewStudy', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'authorization': 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTQSIsImNyZWF0ZWQiOjE3ODI3MzM2MDAwODMsImV4cCI6MTc4MjczODYwMH0.FyqMa5Clj6nXOw9ohM3TbccU9BthXeAsBHqKVO4CUxARjSkPhkljR2jbIxGn9vY-zYzhSBXJSMGVqZNfR3qzDA'
+              'authorization': authorizationToken
             },
             body: JSON.stringify({
               reportSearchDTO: {
@@ -306,6 +414,12 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
     getStudyInstanceUIDs: ({ params, query }) => {
       const url = query.get('url');
       if (!url) {
+        const studyGUID = query.get('studyGUID') || query.get('studyguid');
+        if (studyGUID) {
+          const fakeUrl = `https://files.anikrafoundation.com/json/${studyGUID}.json`;
+          return _store.studyInstanceUIDMap.get(fakeUrl);
+        }
+
         const studyInstanceUIDs = query.get('StudyInstanceUIDs') || query.get('studyInstanceUIDs');
         if (studyInstanceUIDs) {
           return studyInstanceUIDs.split(',');

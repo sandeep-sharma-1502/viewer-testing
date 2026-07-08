@@ -114,12 +114,14 @@ function modeFactory({ modeConfiguration }) {
         'Probe',
         'TrackballRotate',
         'WindowLevel',
+        'WindowLevelPresets',
         'Capture',
         'Layout',
         'Crosshairs',
         'StackScroll',
         'invert',
         'ClearMeasurements',
+        'ImageSliceSync',
         'MoreTools',
       ]);
 
@@ -166,7 +168,6 @@ function modeFactory({ modeConfiguration }) {
         'Reset',
         'rotate-right',
         'flipHorizontal',
-        'ImageSliceSync',
         'ReferenceLines',
         'ImageOverlayViewer',
         'Cine',
@@ -174,11 +175,17 @@ function modeFactory({ modeConfiguration }) {
         'CobbAngle',
         'Magnify',
         'CalibrationLine',
-        'TagBrowser',
         'AdvancedMagnify',
         'UltrasoundDirectionalTool',
         'UltrasoundPleuraBLineTool',
-        'WindowLevelRegion',
+      ]);
+
+      toolbarService.updateSection('WindowLevelPresets', [
+        'Soft tissue',
+        'Lung',
+        'Liver',
+        'Bone',
+        'Brain',
       ]);
 
       customizationService.setCustomizations(

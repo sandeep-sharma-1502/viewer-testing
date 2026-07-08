@@ -20,7 +20,43 @@ export const setToolActiveToolbar = {
   },
 };
 
+import { defaults } from '@ohif/core';
+
+const { windowLevelPresets } = defaults;
+
+function _createWwwcPreset(preset, title, subtitle) {
+  return {
+    id: title,
+    uiType: 'ohif.toolButton',
+    props: {
+      title,
+      subtitle,
+      commands: [
+        {
+          commandName: 'setWindowLevel',
+          commandOptions: {
+            ...windowLevelPresets[preset],
+          },
+          context: 'CORNERSTONE',
+        },
+      ],
+    },
+  };
+}
+
 const toolbarButtons: Button[] = [
+  {
+    id: 'WindowLevelPresets',
+    uiType: 'ohif.presetsDropdown',
+    props: {
+      buttonSection: true,
+    },
+  },
+  _createWwwcPreset(1, 'Soft tissue', '400 / 40'),
+  _createWwwcPreset(2, 'Lung', '1500 / -600'),
+  _createWwwcPreset(3, 'Liver', '150 / 90'),
+  _createWwwcPreset(4, 'Bone', '2500 / 480'),
+  _createWwwcPreset(5, 'Brain', '80 / 40'),
   {
     id: 'Report',
     uiType: 'ohif.toolButton',
@@ -345,8 +381,8 @@ const toolbarButtons: Button[] = [
     uiType: 'ohif.toolButton',
     props: {
       icon: 'tool-probe',
-      label: i18n.t('Buttons:Probe'),
-      tooltip: i18n.t('Buttons:Probe'),
+      label: 'HU',
+      tooltip: 'HU Probe',
       commands: setToolActiveToolbar,
       evaluate: 'evaluate.cornerstoneTool',
     },

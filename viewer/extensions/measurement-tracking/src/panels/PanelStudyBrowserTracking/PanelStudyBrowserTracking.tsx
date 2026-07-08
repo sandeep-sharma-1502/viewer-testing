@@ -45,26 +45,15 @@ export default function PanelStudyBrowserTracking({
     };
   }, []);
   const onClickUntrack = displaySetInstanceUID => {
-    const onConfirm = () => {
-      const displaySet = displaySetService.getDisplaySetByUID(displaySetInstanceUID);
-      sendTrackedMeasurementsEvent('UNTRACK_SERIES', {
-        SeriesInstanceUID: displaySet.SeriesInstanceUID,
-      });
-      const measurements = measurementService.getMeasurements();
-      measurements.forEach(m => {
-        if (m.referenceSeriesUID === displaySet.SeriesInstanceUID) {
-          measurementService.remove(m.uid);
-        }
-      });
-    };
-
-    uiModalService.show({
-      title: 'Untrack Series',
-      content: UntrackSeriesModal,
-      contentProps: {
-        onConfirm,
-        message: 'Are you sure you want to untrack this series?',
-      },
+    const displaySet = displaySetService.getDisplaySetByUID(displaySetInstanceUID);
+    sendTrackedMeasurementsEvent('UNTRACK_SERIES', {
+      SeriesInstanceUID: displaySet.SeriesInstanceUID,
+    });
+    const measurements = measurementService.getMeasurements();
+    measurements.forEach(m => {
+      if (m.referenceSeriesUID === displaySet.SeriesInstanceUID) {
+        measurementService.remove(m.uid);
+      }
     });
   };
 

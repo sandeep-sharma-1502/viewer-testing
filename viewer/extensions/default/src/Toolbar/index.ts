@@ -1,6 +1,7 @@
 export * from './Toolbar';
 export * from './ToolButtonWrapper';
 export * from './ToolButtonListWrapper';
+export * from './PresetsDropdownWrapper';
 export * from './ToolRowWrapper';
 export * from './ToolBoxWrapper';
 export * from './ToolbarDivider';

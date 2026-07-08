@@ -98,9 +98,17 @@ function ViewerLayout({
     document.body.classList.add('bg-background');
     document.body.classList.add('overflow-hidden');
 
+    const handleScroll = () => {
+      if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+
     return () => {
       document.body.classList.remove('bg-background');
       document.body.classList.remove('overflow-hidden');
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -175,7 +183,7 @@ function ViewerLayout({
       />
       <div
         className="relative flex w-full flex-row flex-nowrap items-stretch overflow-hidden bg-background"
-        style={{ height: 'calc(100vh - 52px)' }}
+        style={{ height: 'calc(100vh - 60px)' }}
       >
         <React.Fragment>
           {showLoadingIndicator && <LoadingIndicatorProgress className="h-full w-full bg-background" />}

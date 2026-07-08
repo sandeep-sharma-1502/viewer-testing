@@ -42,10 +42,11 @@ function modeFactory({ modeConfiguration }) {
 
       toolbarService.updateSection(toolbarService.sections.primary, [
         'Report',
-        'WindowLevel',
         'Pan',
         'Zoom',
         'TrackballRotate',
+        'WindowLevel',
+        'WindowLevelPresets',
         'Capture',
         'Layout',
         'Crosshairs',
@@ -88,8 +89,14 @@ function modeFactory({ modeConfiguration }) {
         'StackScroll',
         'invert',
         'Cine',
-        'Magnify',
-        'TagBrowser',
+      ]);
+
+      toolbarService.updateSection('WindowLevelPresets', [
+        'Soft tissue',
+        'Lung',
+        'Liver',
+        'Bone',
+        'Brain',
       ]);
 
       toolbarService.updateSection(toolbarService.sections.labelMapSegmentationToolbox, [

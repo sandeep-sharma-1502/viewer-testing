@@ -124,11 +124,11 @@ function ToolButton(props: ToolButtonProps) {
       >
         {showTooltip && (
           <div className="space-y-1">
-            {defaultTooltip && <div className="text-sm">{defaultTooltip}</div>}
+            {defaultTooltip && !tooltip && !disabledTooltip && <div className="text-sm">{defaultTooltip}</div>}
             {disabledTooltip ? (
               <div className="text-muted-foreground text-xs">{disabledTooltip}</div>
             ) : (
-              tooltip && <div className="text-muted-foreground text-xs">{tooltip}</div>
+              tooltip && <div className="text-sm">{tooltip}</div>
             )}
           </div>
         )}

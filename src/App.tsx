@@ -12,6 +12,7 @@ type ViewerTab = {
 function Home() {
   const [activeTab, setActiveTab] = useState<'scan' | 'local' | string>('scan');
   const [viewerTabs, setViewerTabs] = useState<ViewerTab[]>([]);
+  const [customStudyId, setCustomStudyId] = useState('');
 
   const openViewerTab = useCallback((label: string, viewerUrl: string) => {
     const id = `viewer-${Date.now()}`;
@@ -38,46 +39,19 @@ function Home() {
   const activeViewer = viewerTabs.find(t => t.id === activeTab);
 
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: '#0f172a',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
-      overflow: 'hidden',
-    }}>
+    <div className="w-screen h-screen bg-[#0f172a] flex flex-col font-sans overflow-hidden select-none">
 
       {/* ── Top branding bar ── */}
-      <div style={{
-        height: '44px',
-        backgroundColor: '#0a1628',
-        borderBottom: '1px solid #1e293b',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 1.25rem',
-        flexShrink: 0,
-      }}>
-        <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '15px', letterSpacing: '0.04em' }}>
+      <div className="h-[44px] bg-[#0a1628] border-b border-[#1e293b] flex items-center px-5 shrink-0">
+        <span className="text-[#38bdf8] font-bold text-[15px] tracking-wider">
           iCare
         </span>
-        <span style={{ color: '#334155', margin: '0 0.5rem' }}>|</span>
-        <span style={{ color: '#64748b', fontSize: '12px' }}>Medical Imaging Platform</span>
+        <span className="text-[#334155] mx-2">|</span>
+        <span className="text-[#64748b] text-[12px]">Medical Imaging Platform</span>
       </div>
 
       {/* ── Tab bar ── */}
-      <div style={{
-        height: '34px',
-        backgroundColor: '#0f172a',
-        borderBottom: '1px solid #1e293b',
-        display: 'flex',
-        alignItems: 'flex-end',
-        padding: '0 0.75rem',
-        gap: '1px',
-        flexShrink: 0,
-        overflowX: 'auto',
-        overflowY: 'hidden',
-      }}>
+      <div className="h-[34px] bg-[#0f172a] border-b border-[#1e293b] flex items-end px-3 gap-px shrink-0 overflow-x-auto overflow-y-hidden">
         {/* Static tab: Open Study Scan */}
         <Tab
           label="Open Study Scan"
@@ -105,108 +79,191 @@ function Home() {
       </div>
 
       {/* ── Content area ── */}
-      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+      <div className="flex-1 overflow-hidden relative">
 
         {/* Static panels — always mounted, visibility toggled */}
-        <div style={{ ...centeredStyle, display: activeTab === 'scan' ? 'flex' : 'none' }}>
-          <div style={{
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-            borderRadius: '12px',
-            padding: '2rem 2.5rem',
-            maxWidth: '560px',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
-              <span style={{ fontSize: '400px' }}>🩻</span>
+        <div 
+          className="absolute inset-0 flex items-center justify-center p-8"
+          style={{ display: activeTab === 'scan' ? 'flex' : 'none' }}
+        >
+          <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-8 px-10 max-w-[560px] w-full flex flex-col gap-6">
+            <div className="flex items-center gap-3 justify-center">
+              <span className="text-[40px]">🩻</span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {/* Study 1 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 16px',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
-                borderRadius: '8px',
-                gap: '1rem',
-              }}>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ color: '#f8fafc', fontSize: '14px', fontWeight: 600 }}>Study 1742493</div>
-                  <div style={{ color: '#64748b', fontSize: '11px', wordBreak: 'break-all', marginTop: '2px' }}>files.icareteleservices.com</div>
+            {/* Custom Study ID Input */}
+            <div className="flex flex-col gap-2 p-4 bg-[#0f172a] border border-[#1e293b] rounded-lg text-left">
+              <label className="text-[#94a3b8] text-[13px] font-medium">Enter Custom Study ID / GUID:</label>
+              <div className="flex gap-2 flex-col">
+                <div className="flex gap-[10px]">
+                  <input
+                    type="text"
+                    placeholder="e.g., 1742493 or 36"
+                    value={customStudyId}
+                    onChange={e => setCustomStudyId(e.target.value)}
+                    className="flex-1 p-2 px-3 bg-[#1e293b] border border-[#475569] rounded-md text-[#f8fafc] text-[13.5px] outline-none focus:border-[#38bdf8] transition-colors"
+                  />
                 </div>
-                <button
-                  onClick={() => openViewerTab(
-                    'Study Scan 1742493',
-                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.icareteleservices.com/json/1742493.json')
-                  )}
-                  style={{
-                    padding: '6px 16px',
-                    backgroundColor: '#38bdf8',
-                    color: '#0f172a',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'background-color 0.15s ease',
-                  }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0ea5e9')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#38bdf8')}
-                >
-                  View
-                </button>
+                <div className="flex gap-2 flex-wrap mt-1">
+                  <button
+                    disabled={!customStudyId.trim()}
+                    onClick={() => {
+                      const trimmed = customStudyId.trim();
+                      const host = trimmed === '1742493' ? 'files.icareteleservices.com' : 'files.anikrafoundation.com';
+                      openViewerTab(
+                        `Study ${trimmed} (JSON)`,
+                        `/viewer/dicomjson?url=` + encodeURIComponent(`https://${host}/json/${trimmed}.json`)
+                      );
+                    }}
+                    className={`flex-1 min-w-[120px] p-2 px-3 rounded-md font-bold text-[11px] whitespace-nowrap transition-colors ${
+                      customStudyId.trim()
+                        ? 'bg-[#38bdf8] text-[#0f172a] cursor-pointer hover:bg-[#0ea5e9]'
+                        : 'bg-[#334155] text-[#64748b] cursor-not-allowed'
+                    }`}
+                  >
+                    JSON
+                  </button>
+                  <button
+                    disabled={!customStudyId.trim()}
+                    onClick={() => {
+                      const trimmed = customStudyId.trim();
+                      openViewerTab(
+                        `Study ${trimmed} (POST)`,
+                        `/viewer/dicomjson?studyGUID=${trimmed}`
+                      );
+                    }}
+                    className={`flex-1 min-w-[120px] p-2 px-3 rounded-md font-bold text-[11px] whitespace-nowrap transition-colors ${
+                      customStudyId.trim()
+                        ? 'bg-[#10b981] text-[#0f172a] cursor-pointer hover:bg-[#059669]'
+                        : 'bg-[#334155] text-[#64748b] cursor-not-allowed'
+                    }`}
+                  >
+                    POST
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-[10px]">
+              {/* Study 1 */}
+              <div className="flex items-center justify-between p-3 px-4 bg-[#0f172a] border border-[#1e293b] rounded-lg gap-4">
+                <div className="flex-1 text-left">
+                  <div className="text-[#f8fafc] text-[14px] font-semibold">Study 1742493</div>
+                  <div className="text-[#64748b] text-[11px] break-all mt-0.5">files.icareteleservices.com</div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 1742493 (JSON)',
+                      '/viewer/dicomjson?url=' + encodeURIComponent('https://files.icareteleservices.com/json/1742493.json')
+                    )}
+                    className="p-1.5 px-3 bg-[#38bdf8] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#0ea5e9]"
+                  >
+                    View (JSON)
+                  </button>
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 1742493 (POST)',
+                      '/viewer/dicomjson?studyGUID=1742493'
+                    )}
+                    className="p-1.5 px-3 bg-[#10b981] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#059669]"
+                  >
+                    View (POST)
+                  </button>
+                </div>
               </div>
 
               {/* Study 2 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 16px',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
-                borderRadius: '8px',
-                gap: '1rem',
-              }}>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ color: '#f8fafc', fontSize: '14px', fontWeight: 600 }}>Study 36 (Anikra)</div>
-                  <div style={{ color: '#64748b', fontSize: '11px', wordBreak: 'break-all', marginTop: '2px' }}>files.anikrafoundation.com</div>
+              <div className="flex items-center justify-between p-3 px-4 bg-[#0f172a] border border-[#1e293b] rounded-lg gap-4">
+                <div className="flex-1 text-left">
+                  <div className="text-[#f8fafc] text-[14px] font-semibold">Study 36 (Anikra)</div>
+                  <div className="text-[#64748b] text-[11px] break-all mt-0.5">files.anikrafoundation.com</div>
                 </div>
-                <button
-                  onClick={() => openViewerTab(
-                    'Study Scan 36',
-                    '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/36.json')
-                  )}
-                  style={{
-                    padding: '6px 16px',
-                    backgroundColor: '#38bdf8',
-                    color: '#0f172a',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'background-color 0.15s ease',
-                  }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0ea5e9')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#38bdf8')}
-                >
-                  View
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 36 (JSON)',
+                      '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/36.json')
+                    )}
+                    className="p-1.5 px-3 bg-[#38bdf8] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#0ea5e9]"
+                  >
+                    View (JSON)
+                  </button>
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 36 (POST)',
+                      '/viewer/dicomjson?studyGUID=36'
+                    )}
+                    className="p-1.5 px-3 bg-[#10b981] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#059669]"
+                  >
+                    View (POST)
+                  </button>
+                </div>
+              </div>
+
+              {/* Study 3 */}
+              <div className="flex items-center justify-between p-3 px-4 bg-[#0f172a] border border-[#1e293b] rounded-lg gap-4">
+                <div className="flex-1 text-left">
+                  <div className="text-[#f8fafc] text-[14px] font-semibold">Study 32 (Anikra)</div>
+                  <div className="text-[#64748b] text-[11px] break-all mt-0.5">files.anikrafoundation.com</div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 32 (JSON)',
+                      '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/32.json')
+                    )}
+                    className="p-1.5 px-3 bg-[#38bdf8] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#0ea5e9]"
+                  >
+                    View (JSON)
+                  </button>
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 32 (POST)',
+                      '/viewer/dicomjson?studyGUID=32'
+                    )}
+                    className="p-1.5 px-3 bg-[#10b981] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#059669]"
+                  >
+                    View (POST)
+                  </button>
+                </div>
+              </div>
+
+              {/* Study 4 */}
+              <div className="flex items-center justify-between p-3 px-4 bg-[#0f172a] border border-[#1e293b] rounded-lg gap-4">
+                <div className="flex-1 text-left">
+                  <div className="text-[#f8fafc] text-[14px] font-semibold">Study 44 (Anikra)</div>
+                  <div className="text-[#64748b] text-[11px] break-all mt-0.5">files.anikrafoundation.com</div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 44 (JSON)',
+                      '/viewer/dicomjson?url=' + encodeURIComponent('https://files.anikrafoundation.com/json/44.json')
+                    )}
+                    className="p-1.5 px-3 bg-[#38bdf8] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#0ea5e9]"
+                  >
+                    View (JSON)
+                  </button>
+                  <button
+                    onClick={() => openViewerTab(
+                      'Study 44 (POST)',
+                      '/viewer/dicomjson?studyGUID=44'
+                    )}
+                    className="p-1.5 px-3 bg-[#10b981] text-[#0f172a] border-none rounded-md font-bold text-[12px] cursor-pointer whitespace-nowrap transition-colors hover:bg-[#059669]"
+                  >
+                    View (POST)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ ...centeredStyle, display: activeTab === 'local' ? 'flex' : 'none' }}>
+        <div 
+          className="absolute inset-0 flex items-center justify-center p-8"
+          style={{ display: activeTab === 'local' ? 'flex' : 'none' }}
+        >
           <ActionCard
             icon="📂"
             title="Drag & Drop Local DICOM"
@@ -220,17 +277,14 @@ function Home() {
         {viewerTabs.map(tab => (
           <div
             key={tab.id}
-            style={{
-              display: activeTab === tab.id ? 'block' : 'none',
-              position: 'absolute',
-              inset: 0,
-            }}
+            className="absolute inset-0"
+            style={{ display: activeTab === tab.id ? 'block' : 'none' }}
           >
             <iframe
               src={tab.viewerUrl}
               width="100%"
               height="100%"
-              style={{ border: 'none' }}
+              className="border-none"
               allow="fullscreen"
               title={tab.label}
             />
@@ -239,7 +293,10 @@ function Home() {
 
         {/* Empty state when no tab matches */}
         {activeTab !== 'scan' && activeTab !== 'local' && !activeViewer && (
-          <div style={{ ...centeredStyle, display: 'flex', color: '#475569' }}>
+          <div 
+            className="absolute inset-0 flex items-center justify-center p-8 text-[#475569]"
+            style={{ display: 'flex' }}
+          >
             <p>Select a tab to get started.</p>
           </div>
         )}
@@ -263,65 +320,18 @@ function Tab({
   return (
     <button
       onClick={onClick}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        padding: '0 12px',
-        height: '34px',
-        backgroundColor: isActive ? '#1e293b' : 'transparent',
-        color: isActive ? '#f1f5f9' : '#64748b',
-        border: 'none',
-        borderTop: isActive ? '2px solid #38bdf8' : '2px solid transparent',
-        borderRadius: '6px 6px 0 0',
-        cursor: 'pointer',
-        fontSize: '12.5px',
-        fontWeight: isActive ? 600 : 400,
-        transition: 'all 0.12s ease',
-        outline: 'none',
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-      }}
-      onMouseEnter={e => {
-        if (!isActive) {
-          (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1';
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1e293b60';
-        }
-      }}
-      onMouseLeave={e => {
-        if (!isActive) {
-          (e.currentTarget as HTMLButtonElement).style.color = '#64748b';
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
-        }
-      }}
+      className={`inline-flex items-center gap-1.5 px-3 h-[34px] rounded-t-md cursor-pointer text-[12.5px] transition-all shrink-0 whitespace-nowrap outline-none border-none border-t-2 ${
+        isActive
+          ? 'bg-[#1e293b] text-[#f1f5f9] font-semibold border-t-[#38bdf8]'
+          : 'bg-transparent text-[#64748b] border-t-transparent hover:text-[#cbd5e1] hover:bg-[#1e293b60]'
+      }`}
     >
       {label}
       {onClose && (
         <span
           onClick={onClose}
           title="Close tab"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            fontSize: '11px',
-            color: '#64748b',
-            backgroundColor: 'transparent',
-            transition: 'all 0.12s',
-            lineHeight: 1,
-            cursor: 'pointer',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLSpanElement).style.backgroundColor = '#ef444430';
-            (e.currentTarget as HTMLSpanElement).style.color = '#f87171';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLSpanElement).style.backgroundColor = 'transparent';
-            (e.currentTarget as HTMLSpanElement).style.color = '#64748b';
-          }}
+          className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[11px] text-[#64748b] bg-transparent transition-all cursor-pointer leading-none hover:bg-red-500/20 hover:text-red-400"
         >
           ✕
         </span>
@@ -345,54 +355,19 @@ function ActionCard({
   onOpen: () => void;
 }) {
   return (
-    <div style={{
-      backgroundColor: '#1e293b',
-      border: '1px solid #334155',
-      borderRadius: '12px',
-      padding: '2.5rem 3rem',
-      maxWidth: '440px',
-      width: '100%',
-      textAlign: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '1rem',
-    }}>
-      <div style={{ fontSize: '52px' }}>{icon}</div>
-      <h2 style={{ margin: 0, fontSize: '18px', color: '#f8fafc', fontWeight: 600 }}>{title}</h2>
-      <p style={{ margin: 0, color: '#94a3b8', fontSize: '13.5px', lineHeight: '1.65' }}>{description}</p>
+    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-10 px-12 max-w-[440px] w-full text-center flex flex-col items-center gap-4">
+      <div className="text-[52px]">{icon}</div>
+      <h2 className="m-0 text-[18px] text-[#f8fafc] font-semibold">{title}</h2>
+      <p className="m-0 text-[#94a3b8] text-[13.5px] leading-relaxed">{description}</p>
       <button
         onClick={onOpen}
-        style={{
-          marginTop: '0.25rem',
-          padding: '0.65rem 1.75rem',
-          backgroundColor: '#38bdf8',
-          color: '#0f172a',
-          border: 'none',
-          borderRadius: '8px',
-          fontWeight: 700,
-          fontSize: '13.5px',
-          cursor: 'pointer',
-          transition: 'background-color 0.15s ease',
-        }}
-        onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0ea5e9')}
-        onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#38bdf8')}
+        className="mt-1 p-2.5 px-7 bg-[#38bdf8] text-[#0f172a] border-none rounded-lg font-bold text-[13.5px] cursor-pointer transition-colors hover:bg-[#0ea5e9]"
       >
         {buttonLabel} →
       </button>
     </div>
   );
 }
-
-/* ─── Helpers ───────────────────────────────────────────────── */
-const centeredStyle: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '2rem',
-};
 
 /* ─── App root ──────────────────────────────────────────────── */
 export default function App() {

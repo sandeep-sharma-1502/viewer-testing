@@ -18,6 +18,7 @@ window.config = {
   strictZSpacingForVolumeViewport: true,
   groupEnabledModesFirst: true,
   allowMultiSelectExport: false,
+  measurementTrackingMode: 'simplified',
   maxNumRequests: {
     interaction: 100,
     thumbnail: 5,

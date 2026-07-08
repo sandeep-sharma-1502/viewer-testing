@@ -80,8 +80,8 @@ const toolbarButtons: Button[] = [
     },
   },
   {
-    id: 'WindowLevelGroup',
-    uiType: 'ohif.toolButtonList',
+    id: 'WindowLevelPresets',
+    uiType: 'ohif.presetsDropdown',
     props: {
       buttonSection: true,
     },
@@ -520,8 +520,8 @@ const toolbarButtons: Button[] = [
     uiType: 'ohif.toolButton',
     props: {
       icon: 'tool-probe',
-      label: i18n.t('Buttons:Probe'),
-      tooltip: i18n.t('Buttons:Probe'),
+      label: 'HU',
+      tooltip: 'HU Probe',
       commands: setToolActiveToolbar,
       evaluate: 'evaluate.cornerstoneTool',
     },

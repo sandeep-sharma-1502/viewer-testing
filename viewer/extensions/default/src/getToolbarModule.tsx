@@ -7,6 +7,7 @@ import { ProgressDropdownWithService } from './Components/ProgressDropdownWithSe
 
 // new
 import ToolButtonListWrapper from './Toolbar/ToolButtonListWrapper';
+import PresetsDropdownWrapper from './Toolbar/PresetsDropdownWrapper';
 import ToolRowWrapper from './Toolbar/ToolRowWrapper';
 import { ToolBoxButtonGroupWrapper, ToolBoxButtonWrapper } from './Toolbar/ToolBoxWrapper';
 import { ToolButtonWrapper } from './Toolbar/ToolButtonWrapper';
@@ -19,6 +20,10 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
     {
       name: 'ohif.toolButton',
       defaultComponent: ToolButtonWrapper,
+    },
+    {
+      name: 'ohif.presetsDropdown',
+      defaultComponent: PresetsDropdownWrapper,
     },
     {
       name: 'ohif.toolButtonList',
