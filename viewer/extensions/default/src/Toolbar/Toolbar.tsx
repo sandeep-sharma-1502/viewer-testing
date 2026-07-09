@@ -47,52 +47,108 @@ export function Toolbar({ buttonSection = 'primary', viewportId, location }: Too
 
   return (
     <>
-      {toolbarButtons?.map(toolDef => {
-        if (!toolDef) {
-          return null;
+      {(() => {
+        const elements: React.ReactNode[] = [];
+        let i = 0;
+        while (i < toolbarButtons.length) {
+          const toolDef = toolbarButtons[i];
+          const nextToolDef = toolbarButtons[i + 1];
+
+          if (toolDef && nextToolDef && toolDef.id + 'Presets' === nextToolDef.id) {
+            const enhancedProps = {
+              ...toolDef.componentProps,
+              isOpen: isItemOpen(toolDef.id, viewportId),
+              isLocked: isItemLocked(toolDef.id, viewportId),
+              onOpen: () => openItem(toolDef.id, viewportId),
+              onClose: () => closeItem(toolDef.id, viewportId),
+              onToggleLock: () => toggleLock(toolDef.id, viewportId),
+              viewportId,
+            };
+
+            const nextEnhancedProps = {
+              ...nextToolDef.componentProps,
+              isOpen: isItemOpen(nextToolDef.id, viewportId),
+              isLocked: isItemLocked(nextToolDef.id, viewportId),
+              onOpen: () => openItem(nextToolDef.id, viewportId),
+              onClose: () => closeItem(nextToolDef.id, viewportId),
+              onToggleLock: () => toggleLock(nextToolDef.id, viewportId),
+              viewportId,
+            };
+
+            elements.push(
+              <div
+                key={`${toolDef.id}Group`}
+                className="flex flex-row items-center border border-input/10 rounded-lg p-[1px] space-x-[1px]"
+              >
+                <toolDef.Component
+                  id={toolDef.id}
+                  location={location}
+                  onInteraction={args => {
+                    onInteraction({
+                      ...args,
+                      itemId: toolDef.id,
+                      viewportId,
+                    });
+                  }}
+                  {...enhancedProps}
+                />
+                <div className="bg-primary h-5 w-px self-center opacity-100"></div>
+                <nextToolDef.Component
+                  id={nextToolDef.id}
+                  location={location}
+                  onInteraction={args => {
+                    onInteraction({
+                      ...args,
+                      itemId: nextToolDef.id,
+                      viewportId,
+                    });
+                  }}
+                  {...nextEnhancedProps}
+                />
+              </div>
+            );
+            i += 2;
+          } else {
+            if (!toolDef) {
+              i++;
+              continue;
+            }
+            const enhancedProps = {
+              ...toolDef.componentProps,
+              isOpen: isItemOpen(toolDef.id, viewportId),
+              isLocked: isItemLocked(toolDef.id, viewportId),
+              onOpen: () => openItem(toolDef.id, viewportId),
+              onClose: () => closeItem(toolDef.id, viewportId),
+              onToggleLock: () => toggleLock(toolDef.id, viewportId),
+              viewportId,
+            };
+
+            elements.push(
+              <div
+                key={toolDef.id}
+                className="contents"
+              >
+                <toolDef.Component
+                  id={toolDef.id}
+                  location={location}
+                  onInteraction={args => {
+                    onInteraction({
+                      ...args,
+                      itemId: toolDef.id,
+                      viewportId,
+                    });
+                  }}
+                  {...enhancedProps}
+                />
+              </div>
+            );
+            i++;
+          }
         }
-
-        const { id, Component, componentProps } = toolDef;
-
-        // Enhanced props with state and actions - respecting viewport specificity
-        const enhancedProps = {
-          ...componentProps,
-          isOpen: isItemOpen(id, viewportId),
-          isLocked: isItemLocked(id, viewportId),
-          onOpen: () => openItem(id, viewportId),
-          onClose: () => closeItem(id, viewportId),
-          onToggleLock: () => toggleLock(id, viewportId),
-          viewportId,
-        };
-
-        const tool = (
-          <Component
-            key={id}
-            id={id}
-            location={location}
-            onInteraction={args => {
-              onInteraction({
-                ...args,
-                itemId: id,
-                viewportId,
-              });
-            }}
-            {...enhancedProps}
-          />
-        );
-
-        return (
-          <div
-            key={id}
-            // This wrapper div exists solely for React's key prop requirement during reconciliation.
-            // We use display:contents to make it transparent to the layout engine (children appear
-            // as direct children of the parent) while keeping it in the DOM for React's virtual DOM.
-            className="contents"
-          >
-            {tool}
-          </div>
-        );
-      })}
+        return elements;
+      })()}
     </>
   );
 }
+
+export default Toolbar;

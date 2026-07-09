@@ -32,6 +32,73 @@ function wrapSequences(obj) {
   );
 }
 
+function mapWebImageIfNeeded(instance, studyInstanceUID, seriesInstanceUID, modality, wl, ww, imgIdx) {
+  let url = instance.url || instance.dcmFileName || '';
+  
+  // Clean dicomweb:/wadouri: prefix first to inspect clean URL/extension
+  let cleanUrl = url;
+  if (cleanUrl.startsWith('wadouri:')) {
+    cleanUrl = cleanUrl.substring(8);
+  } else if (cleanUrl.startsWith('dicomweb:')) {
+    cleanUrl = cleanUrl.substring(9);
+  } else if (cleanUrl.startsWith('web:')) {
+    cleanUrl = cleanUrl.substring(4);
+  }
+  
+  const pathOnly = cleanUrl.split('?')[0].split('#')[0];
+  const isWebImage = pathOnly.toLowerCase().match(/\.(jpg|jpeg|png)$/) || instance.fileType === 'jpg' || instance.fileType === 'png';
+
+  if (isWebImage) {
+    url = 'web:' + cleanUrl;
+  } else {
+    url = 'dicomweb:' + cleanUrl;
+  }
+
+  const metadata = instance.metadata || {
+    StudyInstanceUID: studyInstanceUID,
+    SeriesInstanceUID: seriesInstanceUID,
+    InstanceNumber: instance.instanceNO || (imgIdx + 1),
+    SOPInstanceUID: instance.imageInstanceUID || `sop-${imgIdx}-${Math.random()}`,
+    FrameOfReferenceUID: '',
+    ImageOrientationPatient: [1, 0, 0, 0, 1, 0],
+    ImagePositionPatient: [0, 0, parseFloat(instance.sliceLocation || 0.0)],
+    PixelSpacing: [1.0, 1.0],
+  };
+
+  if (isWebImage) {
+    metadata.SOPClassUID = '1.2.840.10008.5.1.4.1.1.7';
+    metadata.Columns = instance.columns || metadata.Columns || 512;
+    metadata.Rows = instance.rows || metadata.Rows || 512;
+    metadata.BitsAllocated = 8;
+    metadata.BitsStored = 8;
+    metadata.HighBit = 7;
+    metadata.PixelRepresentation = 0;
+    metadata.SamplesPerPixel = 3;
+    metadata.PhotometricInterpretation = 'RGB';
+    metadata.WindowCenter = 128;
+    metadata.WindowWidth = 256;
+    metadata.Modality = modality || 'OT';
+  } else {
+    metadata.SOPClassUID = metadata.SOPClassUID || '1.2.840.10008.5.1.4.1.1.2';
+    metadata.Columns = metadata.Columns || 512;
+    metadata.Rows = metadata.Rows || 512;
+    metadata.BitsAllocated = metadata.BitsAllocated || 16;
+    metadata.BitsStored = metadata.BitsStored || 16;
+    metadata.HighBit = metadata.HighBit || 15;
+    metadata.PixelRepresentation = metadata.PixelRepresentation || 0;
+    metadata.SamplesPerPixel = metadata.SamplesPerPixel || 1;
+    metadata.PhotometricInterpretation = metadata.PhotometricInterpretation || 'MONOCHROME2';
+    metadata.WindowCenter = metadata.WindowCenter || parseFloat(wl || 40);
+    metadata.WindowWidth = metadata.WindowWidth || parseFloat(ww || 80);
+    metadata.Modality = modality || 'CT';
+  }
+
+  return {
+    metadata,
+    url
+  };
+}
+
 function createIcareApi(dicomJsonConfig, servicesManager) {
   const { userAuthenticationService } = servicesManager.services;
   const implementation = {
@@ -91,50 +158,18 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
                 Modality: ser.modality || s.modality || 'CT',
                 SliceThickness: parseFloat(ser.sliceThickness || 0.0),
                 instances: (ser.images || []).map((img, imgIdx) => {
-                  let sopUID = img.imageInstanceUID;
-                  if (!sopUID && img.imageGUID) {
-                    const parts = img.imageGUID.split('.');
-                    if (parts.length > 2) {
-                      sopUID = parts.slice(1, parts.length - 1).join('.');
-                    } else {
-                      sopUID = img.imageGUID;
-                    }
-                  }
-                  if (!sopUID) {
-                    sopUID = `sop-${imgIdx}-${Math.random()}`;
-                  }
-
-                  let imageUrl = img.dcmFileName || '';
-                  if (imageUrl.startsWith('wadouri:')) {
-                    imageUrl = 'dicomweb:' + imageUrl.substring(8);
-                  } else if (!imageUrl.startsWith('dicomweb:') && imageUrl.startsWith('http')) {
-                    imageUrl = 'dicomweb:' + imageUrl;
-                  }
-
+                  const mapped = mapWebImageIfNeeded(
+                    img,
+                    s.studyInstanceUID,
+                    ser.seriesInstanceUID,
+                    ser.modality || s.modality,
+                    ser.wl,
+                    ser.ww,
+                    imgIdx
+                  );
                   return {
-                    metadata: {
-                      StudyInstanceUID: s.studyInstanceUID,
-                      SeriesInstanceUID: ser.seriesInstanceUID,
-                      InstanceNumber: img.instanceNO || (imgIdx + 1),
-                      SOPInstanceUID: sopUID,
-                      SOPClassUID: '1.2.840.10008.5.1.4.1.1.2',
-                      FrameOfReferenceUID: '',
-                      ImageOrientationPatient: [1, 0, 0, 0, 1, 0],
-                      ImagePositionPatient: [0, 0, parseFloat(img.sliceLocation || 0.0)],
-                      PixelSpacing: [1.0, 1.0],
-                      Columns: 512,
-                      Rows: 512,
-                      BitsAllocated: 16,
-                      BitsStored: 16,
-                      HighBit: 15,
-                      PixelRepresentation: 0,
-                      SamplesPerPixel: 1,
-                      PhotometricInterpretation: 'MONOCHROME2',
-                      WindowCenter: parseFloat(ser.wl || 40),
-                      WindowWidth: parseFloat(ser.ww || 80),
-                      Modality: ser.modality || s.modality || 'CT',
-                    },
-                    url: imageUrl,
+                    metadata: mapped.metadata,
+                    url: mapped.url,
                   };
                 })
               };
@@ -328,12 +363,21 @@ function createIcareApi(dicomJsonConfig, servicesManager) {
 
           const numberOfSeries = seriesList.length;
           seriesList.forEach((series, index) => {
-            const instances = series.instances.map(instance => {
-              const modifiedMetadata = wrapSequences(instance.metadata);
+            const instances = series.instances.map((instance, imgIdx) => {
+              const mapped = mapWebImageIfNeeded(
+                instance,
+                studyDetails.StudyInstanceUID,
+                series.SeriesInstanceUID,
+                series.Modality,
+                series.wl,
+                series.ww,
+                imgIdx
+              );
+              const modifiedMetadata = wrapSequences(mapped.metadata);
               const obj = {
                 ...modifiedMetadata,
-                url: instance.url,
-                imageId: getImageId({ instance, config: dicomJsonConfig }),
+                url: mapped.url,
+                imageId: getImageId({ instance: mapped, config: dicomJsonConfig }),
                 ...series,
                 ...studyDetails,
               };

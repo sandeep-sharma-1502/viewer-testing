@@ -43,10 +43,11 @@ function modeFactory({ modeConfiguration }) {
       toolbarService.updateSection(toolbarService.sections.primary, [
         'Report',
         'Pan',
-        'Zoom',
-        'TrackballRotate',
         'WindowLevel',
         'WindowLevelPresets',
+        'ColorLUT',
+        'Zoom',
+        'TrackballRotate',
         'Capture',
         'Layout',
         'Crosshairs',
@@ -97,6 +98,22 @@ function modeFactory({ modeConfiguration }) {
         'Liver',
         'Bone',
         'Brain',
+      ]);
+
+      toolbarService.updateSection('ColorLUT', [
+        'Grayscale',
+        'X Ray',
+        'Isodose',
+        'hsv',
+        'hot_iron',
+        'red_hot',
+        's_pet',
+        'perfusion',
+        'rainbow_2',
+        'suv',
+        'ge_256',
+        'ge',
+        'siemens',
       ]);
 
       toolbarService.updateSection(toolbarService.sections.labelMapSegmentationToolbox, [

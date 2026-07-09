@@ -27,6 +27,28 @@ function _createWwwcPreset(preset, title, subtitle) {
   };
 }
 
+function _createColormapPreset(colormapName, title) {
+  return {
+    id: colormapName,
+    uiType: 'ohif.toolButton',
+    props: {
+      id: colormapName,
+      title,
+      commands: [
+        {
+          commandName: 'setViewportColormap',
+          commandOptions: {
+            colormap: {
+              Name: colormapName,
+            },
+          },
+          context: 'CORNERSTONE',
+        },
+      ],
+    },
+  };
+}
+
 const callbacks = (toolName: string) => [
   {
     commandName: 'setViewportForToolConfiguration',
@@ -823,6 +845,29 @@ const toolbarButtons: Button[] = [
   //     evaluate: 'evaluate.action',
   //   },
   // },
+  {
+    id: 'ColorLUT',
+    uiType: 'ohif.presetsDropdown',
+    props: {
+      buttonSection: true,
+      icon: 'icon-color-lut',
+      label: 'Color LUT',
+      tooltip: 'Color LUT Presets',
+    },
+  },
+  _createColormapPreset('Grayscale', 'Grayscale'),
+  _createColormapPreset('X Ray', 'X Ray'),
+  _createColormapPreset('Isodose', 'Isodose'),
+  _createColormapPreset('hsv', 'HSV'),
+  _createColormapPreset('hot_iron', 'Hot Iron'),
+  _createColormapPreset('red_hot', 'Red Hot'),
+  _createColormapPreset('s_pet', 'PET'),
+  _createColormapPreset('perfusion', 'Perfusion'),
+  _createColormapPreset('rainbow_2', 'Rainbow 2'),
+  _createColormapPreset('suv', 'SUV'),
+  _createColormapPreset('ge_256', 'GE 256'),
+  _createColormapPreset('ge', 'GE'),
+  _createColormapPreset('siemens', 'Siemens'),
 ];
 
 export default toolbarButtons;

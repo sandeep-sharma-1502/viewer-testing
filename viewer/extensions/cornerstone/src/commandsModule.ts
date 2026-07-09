@@ -48,6 +48,7 @@ import {
 } from './stores';
 import { toolNames } from './initCornerstoneTools';
 import CornerstoneViewportDownloadForm from './utils/CornerstoneViewportDownloadForm';
+import { colormaps } from './utils/colormaps';
 import { updateSegmentBidirectionalStats } from './utils/updateSegmentationStats';
 import { generateSegmentationCSVReport } from './utils/generateSegmentationCSVReport';
 import { getUpdatedViewportsForSegmentation } from './utils/hydrationUtils';
@@ -910,16 +911,20 @@ function commandsModule({
       viewportId,
       windowWidth,
       windowCenter,
+      window,
+      level,
       displaySetInstanceUID,
     }: {
       viewportId: string;
-      windowWidth: number;
-      windowCenter: number;
+      windowWidth?: number;
+      windowCenter?: number;
+      window?: number;
+      level?: number;
       displaySetInstanceUID?: string;
     }) {
       // convert to numbers
-      const windowWidthNum = Number(windowWidth);
-      const windowCenterNum = Number(windowCenter);
+      const windowWidthNum = Number(windowWidth ?? window);
+      const windowCenterNum = Number(windowCenter ?? level);
 
       // get actor from the viewport
       const renderingEngine = cornerstoneViewportService.getRenderingEngine();
@@ -1375,7 +1380,59 @@ function commandsModule({
       opacity = 1,
       immediate = false,
     }) => {
+      if (!viewportId) {
+        const enabledElement = _getActiveViewportEnabledElement();
+        viewportId = enabledElement?.viewportId;
+      }
+      if (!viewportId) {
+        return;
+      }
       const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
+
+      let colormapObj = typeof colormap === 'string' ? { Name: colormap } : colormap;
+      if (colormapObj && colormapObj.Name && !colormapObj.RGBPoints) {
+        let found;
+        if (Array.isArray(colormaps)) {
+          found = colormaps.find(
+            c =>
+              c?.Name?.toLowerCase() === colormapObj.Name.toLowerCase() ||
+              c?.description?.toLowerCase() === colormapObj.Name.toLowerCase()
+          );
+        }
+
+        if (!found && customizationService) {
+          const colorbarProperties = customizationService.getCustomization('cornerstone.colorbar');
+          const customColormaps = colorbarProperties?.colormaps;
+          if (customColormaps) {
+            if (Array.isArray(customColormaps)) {
+              found = customColormaps.find(
+                c =>
+                  c?.Name?.toLowerCase() === colormapObj.Name.toLowerCase() ||
+                  c?.description?.toLowerCase() === colormapObj.Name.toLowerCase()
+              );
+            } else if (typeof customColormaps === 'object') {
+              found =
+                customColormaps[colormapObj.Name] ||
+                Object.values(customColormaps).find(
+                  (c: any) =>
+                    c?.Name?.toLowerCase() === colormapObj.Name.toLowerCase() ||
+                    c?.description?.toLowerCase() === colormapObj.Name.toLowerCase()
+                );
+            }
+          }
+        }
+
+        if (found) {
+          colormapObj = found;
+        } else {
+          console.warn('Could not find colormap definition for:', colormapObj.Name);
+        }
+      }
+
+      if (!colormapObj || (!colormapObj.RGBPoints && !colormapObj.ColorSpace)) {
+        console.error('Cannot set colormap: colormap definition is invalid/missing RGBPoints', colormapObj);
+        return;
+      }
 
       let hpOpacity;
       // Retrieve active protocol's viewport match details
@@ -1393,10 +1450,10 @@ function commandsModule({
       }
 
       // HP takes priority over the default opacity
-      colormap = { ...colormap, opacity: hpOpacity || opacity };
+      colormapObj = { ...colormapObj, opacity: hpOpacity || opacity };
 
       if (isStackViewportType(viewport)) {
-        viewport.setProperties({ colormap });
+        viewport.setProperties({ colormap: colormapObj });
       }
 
       if (isOrthographicViewportType(viewport)) {
@@ -1411,7 +1468,7 @@ function commandsModule({
             .getAllVolumeIds()
             .find((_volumeId: string) => _volumeId.includes(displaySetInstanceUID)) ??
           viewport.getVolumeId();
-        viewport.setProperties({ colormap }, volumeId);
+        viewport.setProperties({ colormap: colormapObj }, volumeId);
       }
 
       if (immediate) {
