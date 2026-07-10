@@ -5,6 +5,7 @@ import { DicomMetadataStore, MODULE_TYPES, useSystem } from '@ohif/core';
 
 import Dropzone from 'react-dropzone';
 import filesToStudies from './filesToStudies';
+import JPEGFileLoader from './jpegFileLoader';
 
 import { extensionManager } from '../../App';
 
@@ -112,6 +113,8 @@ function Local({ modePath }: LocalProps) {
   // Set body style
   useEffect(() => {
     document.body.classList.add('bg-background');
+    // Clear any previous local Object URLs to avoid memory leaks
+    JPEGFileLoader.clear();
     return () => {
       document.body.classList.remove('bg-background');
     };

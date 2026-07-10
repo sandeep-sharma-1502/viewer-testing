@@ -3,6 +3,7 @@ import dicomImageLoader from '@cornerstonejs/dicom-image-loader';
 import FileLoader from './fileLoader';
 import PDFFileLoader from './pdfFileLoader';
 import DICOMFileLoader from './dicomFileLoader';
+import JPEGFileLoader from './jpegFileLoader';
 
 class FileLoaderService extends FileLoader {
   fileType;
@@ -29,6 +30,8 @@ class FileLoaderService extends FileLoader {
   getLoader(fileType) {
     if (fileType === 'application/pdf') {
       return PDFFileLoader;
+    } else if (fileType === 'image/jpeg' || fileType === 'image/jpg' || fileType === 'image/png') {
+      return JPEGFileLoader;
     } else {
       // Default to dicom loader
       return DICOMFileLoader;

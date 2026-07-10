@@ -66,6 +66,67 @@ const findStudies = (key, value) => {
   return studies;
 };
 
+const isWebImageUrl = (url) => {
+  if (!url) return false;
+  const cleanUrl = url.split('?')[0];
+  return cleanUrl.endsWith('.jpg') || cleanUrl.endsWith('.jpeg') || cleanUrl.endsWith('.png');
+};
+
+const transformXrayUrl = (url, modality) => {
+  if (!url) return url;
+  const isXray = modality === 'CR' || modality === 'DX' || modality === 'XA';
+  if (!isXray) return url;
+
+  let cleanUrl = url;
+  if (cleanUrl.startsWith('dicomweb:')) {
+    cleanUrl = cleanUrl.substring(9);
+  } else if (cleanUrl.startsWith('wadouri:')) {
+    cleanUrl = cleanUrl.substring(8);
+  }
+
+  // Replace .dcm extension with .jpg (handling query strings if any)
+  const parts = cleanUrl.split('?');
+  let path = parts[0];
+  const query = parts[1] ? '?' + parts[1] : '';
+
+  if (path.endsWith('.dcm')) {
+    path = path.substring(0, path.length - 4) + '.jpg';
+  } else if (!path.endsWith('.jpg') && !path.endsWith('.jpeg') && !path.endsWith('.png')) {
+    // If it doesn't have a web image extension, append/replace to .jpg
+    path = path + '.jpg'; 
+  }
+
+  return 'web:' + path + query;
+};
+
+const resolveImageUrl = (url, modality) => {
+  if (!url) return url;
+  const isXray = modality === 'CR' || modality === 'DX' || modality === 'XA';
+  if (isXray) {
+    return transformXrayUrl(url, modality);
+  }
+
+  // Non-Xray logic:
+  if (url.startsWith('wadouri:')) {
+    return 'dicomweb:' + url.substring(8);
+  } else if (!url.startsWith('dicomweb:') && url.startsWith('http')) {
+    return 'dicomweb:' + url;
+  }
+  return url;
+};
+
+const normalizeStudyUrls = (study) => {
+  if (!study || !study.series) return;
+  study.series.forEach(ser => {
+    const modality = ser.Modality || ser.modality || (ser.instances?.[0]?.metadata?.Modality);
+    if (ser.instances) {
+      ser.instances.forEach(inst => {
+        inst.url = resolveImageUrl(inst.url, modality);
+      });
+    }
+  });
+};
+
 function createDicomJSONApi(dicomJsonConfig, servicesManager) {
   const { userAuthenticationService } = servicesManager.services;
   const implementation = {
@@ -125,6 +186,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
         let StudyInstanceUID;
         let SeriesInstanceUID;
         data.studies.forEach(study => {
+          normalizeStudyUrls(study);
           const firstInst = study.series?.[0]?.instances?.[0];
           const meta = firstInst?.metadata || {};
           study.StudyInstanceUID = study.StudyInstanceUID || meta.StudyInstanceUID;
@@ -288,12 +350,8 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
                       sopUID = `sop-${imgIdx}-${Math.random()}`;
                     }
 
-                    let imageUrl = img.dcmFileName || '';
-                    if (imageUrl.startsWith('wadouri:')) {
-                      imageUrl = 'dicomweb:' + imageUrl.substring(8);
-                    } else if (!imageUrl.startsWith('dicomweb:') && imageUrl.startsWith('http')) {
-                      imageUrl = 'dicomweb:' + imageUrl;
-                    }
+                    const modality = ser.modality || s.modality || 'CT';
+                    const imageUrl = resolveImageUrl(img.dcmFileName || '', modality);
 
                     return {
                       metadata: {
@@ -376,6 +434,7 @@ function createDicomJSONApi(dicomJsonConfig, servicesManager) {
         let StudyInstanceUID;
         let SeriesInstanceUID;
         data.studies.forEach(study => {
+          normalizeStudyUrls(study);
           if (!study.StudyInstanceUID) {
             const firstInst = study.series?.[0]?.instances?.[0];
             const meta = firstInst?.metadata || {};
