@@ -193,58 +193,6 @@ export default async function init({
 
   initWADOImageLoader(userAuthenticationService, appConfig, extensionManager);
 
-  // Register custom 'web' image loader for standard JPEGs, PNGs, etc.
-  cornerstone.imageLoader.registerImageLoader('web', (imageId) => {
-    const url = imageId.substring(4); // strip 'web:' prefix
-    return {
-      promise: new Promise((resolve, reject) => {
-        const image = new Image();
-        image.crossOrigin = 'Anonymous';
-        image.onload = () => {
-          const width = image.naturalWidth;
-          const height = image.naturalHeight;
-          
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Failed to get 2D context'));
-            return;
-          }
-          ctx.drawImage(image, 0, 0);
-          const imageData = ctx.getImageData(0, 0, width, height);
-          const pixelData = imageData.data; // Uint8ClampedArray (RGBA)
-          
-          const cornerstoneImage = {
-            imageId,
-            minPixelValue: 0,
-            maxPixelValue: 255,
-            slope: 1,
-            intercept: 0,
-            windowWidth: 255,
-            windowCenter: 128,
-            rows: height,
-            columns: width,
-            height,
-            width,
-            color: true,
-            rgba: true,
-            numComps: 4,
-            getPixelData: () => pixelData,
-            sizeInBytes: width * height * 4,
-          };
-          
-          resolve(cornerstoneImage);
-        };
-        image.onerror = (err) => {
-          reject(err);
-        };
-        image.src = url;
-      })
-    };
-  });
-
   // Add OHIF metadata providers after dicomImageLoader.init().
   // The linked metadata branch clears providers during loader init.
   metaData.addProvider(csUtilities.genericMetadataProvider.get, 9998);
